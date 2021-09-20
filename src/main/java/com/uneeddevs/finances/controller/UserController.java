@@ -99,9 +99,9 @@ public class UserController {
     }
 
     @PutMapping(value = "/{uuid}")
-    @Operation(summary = "Create new user",
+    @Operation(summary = "Update user",
             method = "PUT",
-            description = "Create new user")
+            description = "Update user name and password by id")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
