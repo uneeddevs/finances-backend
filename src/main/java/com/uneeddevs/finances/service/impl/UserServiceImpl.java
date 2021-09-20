@@ -22,8 +22,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByEmail(String username) {
+        log.info("Searching user by username: {}", username);
         return userRepository.findByEmail(username)
-                .orElseThrow(() -> new NoResultException(String.format("No user with email %s", username)));
+                .orElseThrow(() -> {
+                    String message = String.format("No user with email %s", username);
+                    log.info(message);
+                    return new NoResultException(message);
+                });
     }
 
     @Override
@@ -41,14 +46,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(UUID uuid) {
         return userRepository.findById(uuid)
-                .orElseThrow(() -> new NoResultException(String.format("No user with UUID %s", uuid)));
+                .orElseThrow(() ->{
+                    String message = String.format("No user with UUID %s", uuid);
+                    log.info(message);
+                    return new NoResultException(message);
+                });
     }
 
     @Override
     public Page<User> findPage(Pageable pageable) {
+        log.info("Finding users by page {} ", pageable);
         Page<User> userPage = userRepository.findAll(pageable);
         if(!userPage.isEmpty())
             return userPage;
+        log.info("No users founded by page {}", pageable);
         throw new NoResultException("No users in page: " + pageable);
     }
 }
