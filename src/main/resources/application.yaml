@@ -10,3 +10,12 @@ spring:
     jpa:
       hibernate:
         ddl-auto: create-drop
+
+springdoc:
+  api-docs:
+    path: /documentation-api
+  swagger-ui:
+    path: /documentation
+    display-request-duration: true
+    display-query-params: true
+  remove-broken-reference-definitions: true
