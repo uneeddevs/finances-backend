@@ -12,5 +12,5 @@ public interface UserService {
     User findById(UUID uuid);
     User findByEmail(String username);
     Page<User> findPage(Pageable pageable);
-
+    User update(User user);
 }

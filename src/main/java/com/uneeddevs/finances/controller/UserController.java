@@ -3,6 +3,7 @@ package com.uneeddevs.finances.controller;
 import com.uneeddevs.finances.controller.exception.StandardError;
 import com.uneeddevs.finances.dto.UserInsertDTO;
 import com.uneeddevs.finances.dto.UserResponseDTO;
+import com.uneeddevs.finances.dto.UserUpdateDTO;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,6 +96,30 @@ public class UserController {
     public ResponseEntity<User> insert(@RequestBody @Valid UserInsertDTO userInsertDTO, HttpServletRequest request){
         log.info("Receive post to create user by ip: {}", request.getRemoteAddr());
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userInsertDTO.toModel()));
+    }
+
+    @PutMapping(value = "/{uuid}")
+    @Operation(summary = "Create new user",
+            method = "PUT",
+            description = "Create new user")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Ok",
+                    content =  {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad request",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = StandardError.class))}
+            )})
+    public ResponseEntity<User> update(@RequestBody @Valid UserUpdateDTO userUpdate,
+                                       @PathVariable(value = "uuid") String uuid,
+                                       HttpServletRequest request){
+        log.info("Receive put to update user with uuid {} by ip: {}", uuid,  request.getRemoteAddr());
+        return ResponseEntity.ok(userService.update(userUpdate.toModel(uuid)));
     }
 
 }

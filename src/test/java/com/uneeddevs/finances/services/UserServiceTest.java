@@ -125,4 +125,19 @@ public class UserServiceTest {
         assertEquals(noResultException.getMessage(), "No users in page: " + pageable);
         verify(userRepository).findAll(pageable);
     }
+
+    @Test
+    void testUpdateUserExpectedSuccess() {
+        User user = new User("name", "email@mail.com", "password");
+        User userUpdated = new User("name", "email@mail.com", "secret123");
+
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        userService.update(userUpdated);
+
+        verify(userRepository).findById(any());
+        verify(userRepository).save(user);
+
+    }
 }

@@ -62,4 +62,16 @@ public class UserServiceImpl implements UserService {
         log.info("No users founded by page {}", pageable);
         throw new NoResultException("No users in page: " + pageable);
     }
+
+    @Override
+    public User update(User user) {
+        User oldUser = findById(user.getId());
+        updateOldUserObject(oldUser, user);
+        return save(oldUser);
+    }
+
+    void updateOldUserObject(User oldUser, User newUser) {
+        oldUser.setName(newUser.getName());
+        oldUser.setPassword(newUser.getPassword());
+    }
 }

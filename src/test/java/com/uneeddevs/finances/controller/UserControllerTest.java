@@ -3,6 +3,7 @@ package com.uneeddevs.finances.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uneeddevs.finances.controller.exception.ValidationError;
 import com.uneeddevs.finances.dto.UserInsertDTO;
+import com.uneeddevs.finances.dto.UserUpdateDTO;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -29,8 +30,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -113,9 +113,7 @@ public class UserControllerTest {
     @MethodSource(value = "badRequestMethodSource")
     void testNewUserInsertBlankFieldsExpectedBadRequest(String email, String name, String password, String fieldName) throws Exception {
         UserInsertDTO userInsert = new UserInsertDTO(name, email, password);
-
         when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
-
         ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
                 "Bad request",
                 "Validation error",
@@ -135,6 +133,51 @@ public class UserControllerTest {
                 Arguments.of(null, "name", "password", "email"),
                 Arguments.of("email@mail.com", "", "password", "name"),
                 Arguments.of("email@mail.com", "name", "", "password")
+        );
+    }
+
+    @Test
+    void testUpdateUserExpectedCreatedStatus() throws Exception {
+        String uuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+        UserUpdateDTO userUpdate = new UserUpdateDTO("name", "secret123");
+        User userResponse = new User("name", "user@email.com", "secret123");
+        final Class<User> userClass = User.class;
+        Field idField = userClass.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(userResponse, UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa7"));
+        Field registerDateField = userClass.getDeclaredField("registerDate");
+        registerDateField.setAccessible(true);
+        registerDateField.set(userResponse, LocalDateTime.now());
+
+        mockMvc.perform(put("/users/{uuid}", uuid)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdate)))
+                .andExpect(status().isOk());
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "badRequestUpdateMethodSource")
+    void testUpdateUserBlankFieldsExpectedBadRequest(String name, String password, String fieldName) throws Exception {
+        String uuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+        UserUpdateDTO userUpdate = new UserUpdateDTO(name, password);
+        ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
+                "Bad request",
+                "Validation error",
+                "/users/" + uuid);
+        StringBuilder sb = new StringBuilder(fieldName);
+        sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+        validationError.addError(fieldName,  sb + " is mandatory");
+        mockMvc.perform(put("/users/{uuid}", uuid)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdate)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(objectMapper.writeValueAsString(validationError)));
+    }
+
+    private static Stream<Arguments> badRequestUpdateMethodSource() {
+        return Stream.of(
+                Arguments.of("", "password", "name"),
+                Arguments.of("name", "", "password")
         );
     }
 
