@@ -7,7 +7,6 @@ import org.springframework.lang.NonNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
@@ -27,17 +26,13 @@ public class UserResponseDTO {
                            @NonNull String name,
                            @NonNull String email,
                            @NonNull LocalDateTime registerDate) {
-        if(isNull(id))
-            throw new IllegalArgumentException("ID is mandatory");
         this.id = id;
+        this.registerDate = registerDate;
         if(isBlank(name))
             throw new IllegalArgumentException("Name is mandatory");
         this.name = name;
         if(isBlank(email))
             throw new IllegalArgumentException("Email is mandatory");
         this.email = email;
-        if(isNull(registerDate))
-            throw new IllegalArgumentException("Register date is mandatory");
-        this.registerDate = registerDate;
     }
 }

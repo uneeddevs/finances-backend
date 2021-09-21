@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+
+  sonar-cube:
+    container_name: sonar_cube
+    image: sonarqube:9.1.0-community
+    ports:
+      - 9000:9000
+      - 9001:9001
