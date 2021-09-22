@@ -116,7 +116,7 @@ public class UserController {
                             schema = @Schema(implementation = StandardError.class))}
             )})
     public ResponseEntity<User> update(@RequestBody @Valid UserUpdateDTO userUpdate,
-                                       @PathVariable(value = "uuid") String uuid,
+                                       @PathVariable(value = "uuid") UUID uuid,
                                        HttpServletRequest request){
         log.info("Receive put to update user with uuid {} by ip: {}", uuid,  request.getRemoteAddr());
         return ResponseEntity.ok(userService.update(userUpdate.toModel(uuid)));
