@@ -25,7 +25,7 @@ public class UserUpdateDTO {
         this.password = password;
     }
 
-    public User toModel(String uuid) {
-        return new User(UUID.fromString(uuid), name, password);
+    public User toModel(UUID uuid) {
+        return new User(uuid, name, password);
     }
 }
