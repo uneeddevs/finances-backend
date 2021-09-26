@@ -95,7 +95,7 @@ public class UserController {
             )})
     public ResponseEntity<User> insert(@RequestBody @Valid UserInsertDTO userInsertDTO, HttpServletRequest request){
         log.info("Receive post to create user by ip: {}", request.getRemoteAddr());
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userInsertDTO.toModel()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.insert(userInsertDTO.toModel()));
     }
 
     @PutMapping(value = "/{uuid}")

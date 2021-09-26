@@ -1,7 +1,10 @@
 package com.uneeddevs.finances.services;
 
+import com.uneeddevs.finances.mocks.ProfileMock;
+import com.uneeddevs.finances.mocks.UserMock;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.repository.UserRepository;
+import com.uneeddevs.finances.service.ProfileService;
 import com.uneeddevs.finances.service.UserService;
 import com.uneeddevs.finances.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,11 +28,13 @@ class UserServiceTest {
 
     private UserService userService;
     private UserRepository userRepository;
+    private ProfileService profileService;
 
     @BeforeEach
     void setup(){
         userRepository = mock(UserRepository.class);
-        userService = new UserServiceImpl(userRepository);
+        profileService = mock(ProfileService.class);
+        userService = new UserServiceImpl(userRepository, profileService);
     }
 
     @Test
@@ -81,23 +86,27 @@ class UserServiceTest {
     }
 
     @Test
-    void saveUserExpectedSuccess() {
+    void insertUserExpectedSuccess() throws Exception {
         User user = new User("name", "email@mail.com", "password");
         when(userRepository.save(user)).thenReturn(user);
-        userService.save(user);
+        when(profileService.findById(anyLong())).thenReturn(ProfileMock.mock());
+        userService.insert(user);
         verify(userRepository).save(user);
+        verify(profileService).findById(anyLong());
     }
 
     @Test
-    void saveUserExpectedPersistentException() {
+    void saveUserExpectedPersistentException() throws Exception{
         User user = new User("name", "email@mail.com", "password");
         when(userRepository.save(user)).thenThrow(RuntimeException.class);
+        when(profileService.findById(anyLong())).thenReturn(ProfileMock.mock());
         PersistenceException persistenceException = assertThrows(PersistenceException.class,
-                () -> userService.save(user),
+                () -> userService.insert(user),
                 "Expected PersistenceException");
         //
         assertEquals(persistenceException.getMessage(), "Error on persisting user " + user.toString());
         verify(userRepository).save(user);
+        verify(profileService).findById(anyLong());
     }
 
     @Test
@@ -138,6 +147,14 @@ class UserServiceTest {
 
         verify(userRepository).findById(any());
         verify(userRepository).save(user);
+    }
 
+    @Test
+    void testInsertNewUserWithNonExistentProfileExpectedNoResultException() throws Exception {
+        User user = UserMock.mock(false);
+        when(profileService.findById(anyLong())).thenThrow(NoResultException.class);
+        assertThrows(NoResultException.class, () -> userService.insert(user));
+
+        verify(profileService).findById(anyLong());
     }
 }

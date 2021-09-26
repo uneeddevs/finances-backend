@@ -2,9 +2,12 @@ package com.uneeddevs.finances.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -21,6 +24,7 @@ public class UserResponseDTO {
     private final String email;
     @Schema(example = "2021-09-20T15:18:54.708Z", name = "registerDate")
     private final LocalDateTime registerDate;
+    private final Set<String> profiles = new HashSet<>();
 
     public UserResponseDTO(@NonNull UUID id,
                            @NonNull String name,
@@ -34,5 +38,11 @@ public class UserResponseDTO {
         if(isBlank(email))
             throw new IllegalArgumentException("Email is mandatory");
         this.email = email;
+    }
+
+    public void addProfile(String profile) {
+        if(StringUtils.isBlank(profile))
+            throw new IllegalArgumentException("Profile cannot be null");
+        profiles.add(profile);
     }
 }
