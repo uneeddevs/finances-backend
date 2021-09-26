@@ -18,8 +18,8 @@ class ProfileTest {
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class,
                 () -> new Profile(""),
                 "Expected illegal argument exception");
-        assertEquals(illegalArgumentException.getMessage(),
-                "Role Name is mandatory"
+        assertEquals("Role Name is mandatory",
+                illegalArgumentException.getMessage()
                 );
     }
 

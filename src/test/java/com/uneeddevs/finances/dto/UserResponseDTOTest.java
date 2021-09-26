@@ -24,17 +24,17 @@ class UserResponseDTOTest {
 
     @ParameterizedTest
     @MethodSource(value =  "testCreationParams")
-    void testCreateUserWithoutAnyArgIllegalArgumentException(String uuid, String name, String email, LocalDateTime registerDate, String fieldName) {
+    void testCreateUserWithoutAnyArgIllegalArgumentException(UUID uuid, String name, String email, LocalDateTime registerDate, String fieldName) {
         assertThrows(IllegalArgumentException.class, () ->
-                new UserResponseDTO(UUID.fromString(uuid),
+                new UserResponseDTO(uuid,
                 name, email, registerDate),
                 "Expected illegal Argument Exception");
     }
 
     private static Stream<Arguments> testCreationParams() {
         return Stream.of(
-                Arguments.of("3fa85f64-5717-4562-b3fc-2c963f66afa6", null, "user@mail.com", LocalDateTime.now(), "Name"),
-                Arguments.of("3fa85f64-5717-4562-b3fc-2c963f66afa6", "name", null, LocalDateTime.now(), "Email"));
+                Arguments.of(UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6"), null, "user@mail.com", LocalDateTime.now(), "Name"),
+                Arguments.of(UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6") , "name", null, LocalDateTime.now(), "Email"));
     }
 
 
