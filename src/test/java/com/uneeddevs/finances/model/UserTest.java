@@ -1,13 +1,11 @@
 package com.uneeddevs.finances.model;
 
+import com.uneeddevs.finances.mocks.UserMock;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,15 +38,16 @@ public class UserTest {
 
     @Test
     void testToUserResponseDTOExpectedSuccess() throws Exception {
-        User user = new User("name", "email@mail.com", "password");
-        final Class<User> userClass = User.class;
-        Field idField = userClass.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(user, UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
-        Field registerDateField = userClass.getDeclaredField("registerDate");
-        registerDateField.setAccessible(true);
-        registerDateField.set(user, LocalDateTime.now());
+        User user = UserMock.mock();
         assertNotNull(user.toUserResponseDTO(), "Have to be a instance of UserResponseDTO");
+    }
+
+    @Test
+    void testAreEquals() throws Exception {
+        User user1 = UserMock.mock();
+        User user2 = UserMock.mock();
+        assertEquals(user1.hashCode(), user2.hashCode());
+        assertEquals(user1, user2);
     }
 
 }
