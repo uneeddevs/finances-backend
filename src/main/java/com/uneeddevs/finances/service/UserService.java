@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface UserService {
 
-    User save(User user);
+    User insert(User user);
     User findById(UUID uuid);
     User findByEmail(String username);
     Page<User> findPage(Pageable pageable);

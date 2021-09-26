@@ -1,5 +1,7 @@
 package com.uneeddevs.finances.model;
 
+import com.uneeddevs.finances.dto.UserResponseDTO;
+import com.uneeddevs.finances.mocks.ProfileMock;
 import com.uneeddevs.finances.mocks.UserMock;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,16 +40,33 @@ class UserTest {
 
     @Test
     void testToUserResponseDTOExpectedSuccess() throws Exception {
-        User user = UserMock.mock();
-        assertNotNull(user.toUserResponseDTO(), "Have to be a instance of UserResponseDTO");
+        User user = UserMock.mock(true);
+        UserResponseDTO userDto = user.toUserResponseDTO();
+        assertNotNull(userDto, "Have to be a instance of UserResponseDTO");
+        assertFalse(userDto.getProfiles().isEmpty(), "Instance cannot be empty profiles");
     }
 
     @Test
     void testAreEquals() throws Exception {
-        User user1 = UserMock.mock();
-        User user2 = UserMock.mock();
+        User user1 = UserMock.mock(false);
+        User user2 = UserMock.mock(false);
         assertEquals(user1.hashCode(), user2.hashCode());
         assertEquals(user1, user2);
+    }
+
+    @Test
+    void testAddProfileExpectedSuccess() throws Exception {
+        Profile profile = ProfileMock.mock();
+        User user = UserMock.mock(false);
+        assertDoesNotThrow(() -> user.addProfile(profile), "Cannot throws nothing");
+    }
+
+    @Test
+    void testAddProfileExpectedIllegalArgumentException() throws Exception {
+        User user = UserMock.mock(false);
+        assertThrows(IllegalArgumentException.class,
+                () -> user.addProfile(null),
+                "Expected throws IllegalArgumentException");
     }
 
 }

@@ -48,7 +48,7 @@ class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    private LocalDateTime defaultLocalDateTime = LocalDateTime.of(2020, 1, 1, 12, 0);
+    private final LocalDateTime defaultLocalDateTime = LocalDateTime.of(2020, 1, 1, 12, 0);
 
     @Test
     void testFindUserByIdExpectedNotFoundStatus() throws Exception {
@@ -60,7 +60,7 @@ class UserControllerTest {
 
     @Test
     void testFindUserByIdExpectedSuccessStatus() throws Exception {
-        User user = UserMock.mock();
+        User user = UserMock.mock(true);
         when(userService.findById(any(UUID.class))).thenReturn(user);
         mockMvc.perform(get("/users/{uuid}", "3fa85f64-5717-4562-b3fc-2c963f66afa6"))
                 .andExpect(status().isOk())
@@ -74,7 +74,6 @@ class UserControllerTest {
             mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
             String email = "email@mail.com";
             UserInsertDTO userInsert = new UserInsertDTO("name", email, "password");
-            User userResponse = UserMock.mock();
 
             when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
 
@@ -141,7 +140,7 @@ class UserControllerTest {
             mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
             String uuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
             UserUpdateDTO userUpdate = new UserUpdateDTO("name", "secret123");
-            User userResponse = UserMock.mock();
+            User userResponse = UserMock.mock(true);
 
             mockMvc.perform(put("/users/{uuid}", uuid)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -179,7 +178,7 @@ class UserControllerTest {
     @Test
     void testRequestPageExpectedOkStatus() throws Exception{
 
-        User userResponse = UserMock.mock();
+        User userResponse = UserMock.mock(true);
 
         List<User> users = new ArrayList<>();
         users.add(userResponse);

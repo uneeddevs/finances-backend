@@ -1,7 +1,10 @@
 package com.uneeddevs.finances.service.impl;
 
+import com.uneeddevs.finances.enums.ProfileRole;
+import com.uneeddevs.finances.model.Profile;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.repository.UserRepository;
+import com.uneeddevs.finances.service.ProfileService;
 import com.uneeddevs.finances.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final ProfileService profileService;
 
     @Override
     public User findByEmail(String username) {
@@ -32,7 +36,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User save(User user) {
+    public User insert(User user) {
+        Profile profile = profileService.findById(ProfileRole.USER.getRoleId());
+        user.addProfile(profile);
+        return save(user);
+    }
+
+    private User save(User user) {
         String userString = user.toString();
         log.info("Perform persist user: {}", userString);
         try {

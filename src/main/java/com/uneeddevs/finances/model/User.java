@@ -9,9 +9,9 @@ import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
+import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Entity
@@ -40,6 +40,11 @@ public class User {
     private LocalDateTime registerDate;
     @UpdateTimestamp
     private LocalDateTime updateDate;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(joinColumns = @JoinColumn(name = "USER_ID", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "PROFILE_ID", nullable = false)
+    )
+    private final Set<Profile> profiles = new HashSet<>();
 
     public User(UUID uuid, @NonNull String name, @NonNull String password) {
         this.id = uuid;
@@ -63,8 +68,21 @@ public class User {
         this.password = password;
     }
 
+    public Set<Profile> getProfiles() {
+        return Collections.unmodifiableSet(profiles);
+    }
+
+    public void addProfile(Profile profile) {
+        if(isNull(profile))
+            throw new IllegalArgumentException("Profile cannot be null");
+        profiles.add(profile);
+    }
+
     public UserResponseDTO toUserResponseDTO() {
-        return new UserResponseDTO(id, name, email, registerDate);
+        UserResponseDTO userResponseDTO = new UserResponseDTO(id, name, email, registerDate);
+        for(var profile: profiles)
+            userResponseDTO.addProfile(profile.getRoleName());
+        return userResponseDTO;
     }
 
     @Override
