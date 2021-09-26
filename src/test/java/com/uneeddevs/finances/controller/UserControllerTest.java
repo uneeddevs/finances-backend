@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uneeddevs.finances.controller.exception.ValidationError;
 import com.uneeddevs.finances.dto.UserInsertDTO;
 import com.uneeddevs.finances.dto.UserUpdateDTO;
+import com.uneeddevs.finances.mocks.UserMock;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.NoResultException;
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,14 +60,7 @@ class UserControllerTest {
 
     @Test
     void testFindUserByIdExpectedSuccessStatus() throws Exception {
-        User user = new User("name", "email@mail.com", "password");
-        final Class<User> userClass = User.class;
-        Field idField = userClass.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(user, UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
-        Field registerDateField = userClass.getDeclaredField("registerDate");
-        registerDateField.setAccessible(true);
-        registerDateField.set(user, LocalDateTime.now());
+        User user = UserMock.mock();
         when(userService.findById(any(UUID.class))).thenReturn(user);
         mockMvc.perform(get("/users/{uuid}", "3fa85f64-5717-4562-b3fc-2c963f66afa6"))
                 .andExpect(status().isOk())
@@ -81,14 +74,7 @@ class UserControllerTest {
             mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
             String email = "email@mail.com";
             UserInsertDTO userInsert = new UserInsertDTO("name", email, "password");
-            User userResponse = new User("name", email, "password");
-            final Class<User> userClass = User.class;
-            Field idField = userClass.getDeclaredField("id");
-            idField.setAccessible(true);
-            idField.set(userResponse, UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa7"));
-            Field registerDateField = userClass.getDeclaredField("registerDate");
-            registerDateField.setAccessible(true);
-            registerDateField.set(userResponse, LocalDateTime.now());
+            User userResponse = UserMock.mock();
 
             when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
 
@@ -155,14 +141,7 @@ class UserControllerTest {
             mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
             String uuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
             UserUpdateDTO userUpdate = new UserUpdateDTO("name", "secret123");
-            User userResponse = new User("name", "user@email.com", "secret123");
-            final Class<User> userClass = User.class;
-            Field idField = userClass.getDeclaredField("id");
-            idField.setAccessible(true);
-            idField.set(userResponse, UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa7"));
-            Field registerDateField = userClass.getDeclaredField("registerDate");
-            registerDateField.setAccessible(true);
-            registerDateField.set(userResponse, LocalDateTime.now());
+            User userResponse = UserMock.mock();
 
             mockMvc.perform(put("/users/{uuid}", uuid)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -200,14 +179,7 @@ class UserControllerTest {
     @Test
     void testRequestPageExpectedOkStatus() throws Exception{
 
-        User userResponse = new User("name", "user@email.com", "password");
-        final Class<User> userClass = User.class;
-        Field idField = userClass.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(userResponse, UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa7"));
-        Field registerDateField = userClass.getDeclaredField("registerDate");
-        registerDateField.setAccessible(true);
-        registerDateField.set(userResponse, LocalDateTime.now());
+        User userResponse = UserMock.mock();
 
         List<User> users = new ArrayList<>();
         users.add(userResponse);
