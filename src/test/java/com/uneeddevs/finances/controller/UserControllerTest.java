@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-public class UserControllerTest {
+class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,6 +47,8 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    private LocalDateTime defaultLocalDateTime = LocalDateTime.of(2020, 1, 1, 12, 0);
 
     @Test
     void testFindUserByIdExpectedNotFoundStatus() throws Exception {
@@ -66,52 +70,61 @@ public class UserControllerTest {
 
     @Test
     void testNewUserInsertExpectedCreatedStatus() throws Exception {
-        String email = "email@mail.com";
-        UserInsertDTO userInsert = new UserInsertDTO("name", email, "password");
-        User userResponse = UserMock.mock();
+        try(MockedStatic<LocalDateTime> mockedLocalDateTime = Mockito.mockStatic(LocalDateTime.class)) {
+            mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
+            String email = "email@mail.com";
+            UserInsertDTO userInsert = new UserInsertDTO("name", email, "password");
+            User userResponse = UserMock.mock();
 
-        when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
+            when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
 
-        mockMvc.perform(post("/users", "3fa85f64-5717-4562-b3fc-2c963f66afa6")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userInsert)))
-                .andExpect(status().isCreated());
+            mockMvc.perform(post("/users", "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(userInsert)))
+                    .andExpect(status().isCreated());
+        }
     }
 
     @Test
     void testNewUserInsertWithExistentEmailExpectedBadRequest() throws Exception {
-        String email = "email@mail.com";
-        UserInsertDTO userInsert = new UserInsertDTO("name", email, "password");
+        try(MockedStatic<LocalDateTime> mockedLocalDateTime = Mockito.mockStatic(LocalDateTime.class)) {
+            mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
+            String email = "email@mail.com";
+            UserInsertDTO userInsert = new UserInsertDTO("name", email, "password");
 
-        ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
-                "Bad request",
-                "Validation error",
-                "/users");
-        validationError.addError("email", "Email already registered");
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userInsert)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(objectMapper.writeValueAsString(validationError)));
+            ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
+                    "Bad request",
+                    "Validation error",
+                    "/users");
+            validationError.addError("email", "Email already registered");
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(userInsert)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().json(objectMapper.writeValueAsString(validationError)));
+        }
     }
 
     @ParameterizedTest
     @MethodSource(value = "badRequestMethodSource")
     void testNewUserInsertBlankFieldsExpectedBadRequest(String email, String name, String password, String fieldName) throws Exception {
-        UserInsertDTO userInsert = new UserInsertDTO(name, email, password);
-        when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
-        ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
-                "Bad request",
-                "Validation error",
-                "/users");
-        StringBuilder sb = new StringBuilder(fieldName);
-        sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-        validationError.addError(fieldName,  sb.toString() + " is mandatory");
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userInsert)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(objectMapper.writeValueAsString(validationError)));
+        try(MockedStatic<LocalDateTime> mockedLocalDateTime = Mockito.mockStatic(LocalDateTime.class)) {
+            mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
+            UserInsertDTO userInsert = new UserInsertDTO(name, email, password);
+            when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
+            ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
+                    "Bad request",
+                    "Validation error",
+                    "/users");
+            StringBuilder sb = new StringBuilder(fieldName);
+            sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+            validationError.addError(fieldName, sb.toString() + " is mandatory");
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(userInsert)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().json(objectMapper.writeValueAsString(validationError)));
+        }
     }
 
     private static Stream<Arguments> badRequestMethodSource() {
@@ -123,15 +136,18 @@ public class UserControllerTest {
     }
 
     @Test
-    void testUpdateUserExpectedCreatedStatus() throws Exception {
-        String uuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
-        UserUpdateDTO userUpdate = new UserUpdateDTO("name", "secret123");
-        User userResponse = UserMock.mock();
+    void testUpdateUserExpectedOkStatus() throws Exception {
+        try(MockedStatic<LocalDateTime> mockedLocalDateTime = Mockito.mockStatic(LocalDateTime.class)) {
+            mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
+            String uuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+            UserUpdateDTO userUpdate = new UserUpdateDTO("name", "secret123");
+            User userResponse = UserMock.mock();
 
-        mockMvc.perform(put("/users/{uuid}", uuid)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userUpdate)))
-                .andExpect(status().isOk());
+            mockMvc.perform(put("/users/{uuid}", uuid)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(userUpdate)))
+                    .andExpect(status().isOk());
+        }
     }
 
     @ParameterizedTest

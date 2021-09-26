@@ -17,6 +17,9 @@
 		<java.version>11</java.version>
 		<spring-doc.openapi.version>1.5.10</spring-doc.openapi.version>
 		<springdoc-openapi-maven-plugin>0.2</springdoc-openapi-maven-plugin>
+		<sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
+		<build-helper-maven-plugin.version>3.1.0</build-helper-maven-plugin.version>
+		<jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -47,11 +50,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.postgresql</groupId>-->
-<!--			<artifactId>postgresql</artifactId>-->
-<!--			<scope>runtime</scope>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -60,6 +58,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -87,6 +91,43 @@
 						<phase>integration-test</phase>
 						<goals>
 							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>sonar</id>
+						<phase>test</phase>
+						<goals>
+							<goal>sonar</goal>
+						</goals>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-site</id>
+						<phase>package</phase>
+						<goals>
+							<goal>report</goal>
 						</goals>
 					</execution>
 				</executions>
