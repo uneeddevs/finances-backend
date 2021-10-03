@@ -1,6 +1,5 @@
 package com.uneeddevs.finances.controller.exception;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +53,6 @@ public class ControllerAdvice {
                 .build());
     }
 
-    @SneakyThrows
     @ExceptionHandler(value = NoResultException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ResponseEntity<StandardError> notFound(NoResultException ex, HttpServletRequest request) {
