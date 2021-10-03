@@ -54,6 +54,7 @@ class UserControllerTest {
     void testFindUserByIdExpectedNotFoundStatus() throws Exception {
         when(userService.findById(any(UUID.class))).thenThrow(new NoResultException("Not found"));
         mockMvc.perform(get("/users/{uuid}", "3fa85f64-5717-4562-b3fc-2c963f66afa6"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
         verify(userService).findById(any(UUID.class));
     }
@@ -64,7 +65,8 @@ class UserControllerTest {
         when(userService.findById(any(UUID.class))).thenReturn(user);
         mockMvc.perform(get("/users/{uuid}", "3fa85f64-5717-4562-b3fc-2c963f66afa6"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(user.toUserResponseDTO())));
         verify(userService).findById(any(UUID.class));
     }
 

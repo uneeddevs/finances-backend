@@ -22,7 +22,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class User {
 
     @Id
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = false, unique = true, nullable = false)
     private UUID id;
@@ -44,7 +43,12 @@ public class User {
     @JoinTable(joinColumns = @JoinColumn(name = "USER_ID", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "PROFILE_ID", nullable = false)
     )
+    @ToString.Exclude
     private final Set<Profile> profiles = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "USER_ID")
+    @ToString.Exclude
+    private final Set<BankAccount> bankAccounts = new HashSet<>();
 
     public User(UUID uuid, @NonNull String name, @NonNull String password) {
         this.id = uuid;
@@ -70,6 +74,16 @@ public class User {
 
     public Set<Profile> getProfiles() {
         return Collections.unmodifiableSet(profiles);
+    }
+
+    public Set<BankAccount> getBankAccounts() {
+        return Collections.unmodifiableSet(bankAccounts);
+    }
+
+    public void addBankAccount(BankAccount bankAccount) {
+        if(isNull(bankAccount))
+            throw new IllegalArgumentException("Bank account cannot be null");
+        bankAccounts.add(bankAccount);
     }
 
     public void addProfile(Profile profile) {

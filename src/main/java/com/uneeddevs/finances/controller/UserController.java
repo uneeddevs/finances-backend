@@ -1,6 +1,7 @@
 package com.uneeddevs.finances.controller;
 
 import com.uneeddevs.finances.controller.exception.StandardError;
+import com.uneeddevs.finances.controller.exception.ValidationError;
 import com.uneeddevs.finances.dto.UserInsertDTO;
 import com.uneeddevs.finances.dto.UserResponseDTO;
 import com.uneeddevs.finances.dto.UserUpdateDTO;
@@ -91,7 +92,7 @@ public class UserController {
                     responseCode = "400",
                     description = "Bad request",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = StandardError.class))}
+                            schema = @Schema(implementation = ValidationError.class))}
             )})
     public ResponseEntity<User> insert(@RequestBody @Valid UserInsertDTO userInsertDTO, HttpServletRequest request){
         log.info("Receive post to create user by ip: {}", request.getRemoteAddr());
@@ -113,13 +114,13 @@ public class UserController {
                     responseCode = "400",
                     description = "Bad request",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = StandardError.class))}
+                            schema = @Schema(implementation = ValidationError.class))}
             )})
-    public ResponseEntity<User> update(@RequestBody @Valid UserUpdateDTO userUpdate,
+    public ResponseEntity<User> update(@RequestBody @Valid UserUpdateDTO userUpdateDTO,
                                        @PathVariable(value = "uuid") UUID uuid,
                                        HttpServletRequest request){
         log.info("Receive put to update user with uuid {} by ip: {}", uuid,  request.getRemoteAddr());
-        return ResponseEntity.ok(userService.update(userUpdate.toModel(uuid)));
+        return ResponseEntity.ok(userService.update(userUpdateDTO.toModel(uuid)));
     }
 
 }
