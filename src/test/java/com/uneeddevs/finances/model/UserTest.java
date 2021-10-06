@@ -61,12 +61,25 @@ class UserTest {
         assertDoesNotThrow(() -> user.addProfile(profile), "Cannot throws nothing");
     }
 
+
     @Test
     void testAddProfileExpectedIllegalArgumentException() throws Exception {
         User user = UserMock.mock(false);
         assertThrows(IllegalArgumentException.class,
                 () -> user.addProfile(null),
                 "Expected throws IllegalArgumentException");
+    }
+
+    @Test
+    void testGetBankAccountsExpectedNotEmpty() throws Exception {
+        User user = UserMock.mock(false, true);
+        assertFalse(user.getBankAccounts().isEmpty());
+    }
+
+    @Test
+    void testGetBankAccountsExpectedEmpty() throws Exception {
+        User user = UserMock.mock(false, false);
+        assertTrue(user.getBankAccounts().isEmpty());
     }
 
 }
