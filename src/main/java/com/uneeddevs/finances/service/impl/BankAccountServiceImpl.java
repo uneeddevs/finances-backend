@@ -23,7 +23,6 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public List<BankAccount> findByUser(User user) {
-        //TODO implement this method
         final UUID userId = user.getId();
         User userResponse = userService.findById(userId);
         List<BankAccount> bankAccounts = bankAccountRepository.findByUser(userResponse);
@@ -34,6 +33,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public BankAccount save(BankAccount bankAccount) {
+        log.info("Performing persistent bank account {}", bankAccount);
         userService.findById(bankAccount.getUserId());
         return bankAccountRepository.save(bankAccount);
     }

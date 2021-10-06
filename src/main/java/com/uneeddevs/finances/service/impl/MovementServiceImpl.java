@@ -42,6 +42,7 @@ public class MovementServiceImpl implements MovementService {
 
     @Override
     public Movement findById(UUID id) {
+        log.info("Searching movement by id {}", id);
         return movementRepository.findById(id).orElseThrow(() -> {
             final String message = String.format("No movement with id %s", id);
             log.warn(message);
@@ -51,6 +52,7 @@ public class MovementServiceImpl implements MovementService {
 
     @Override
     public void deleteMovementById(UUID id) {
+        log.info("Performing delete movement by id {}", id);
         final Movement movement = findById(id);
         final BankAccount bankAccount = movement.getBankAccount();
         final BigDecimal movementValue = movement.getValue();
@@ -68,10 +70,13 @@ public class MovementServiceImpl implements MovementService {
 
     @Override
     public List<Movement> findByPeriodAndBankAccount(LocalDateTime start, LocalDateTime end, UUID bankAccountId) {
+        log.info("Performing search movement by account {} between {} and {}", bankAccountId, start, end);
         final BankAccount bankAccount = bankAccountService.findById(bankAccountId);
         List<Movement> movements = movementRepository.findByMovementDateBetweenAndBankAccount(start, end, bankAccount);
         if(!movements.isEmpty())
             return movements;
-        throw new NoResultException(String.format("No movements for account %s", bankAccountId));
+        final String message = String.format("No movements for account %s between %s and %s", bankAccountId, start, end);
+        log.warn(message);
+        throw new NoResultException(message);
     }
 }
