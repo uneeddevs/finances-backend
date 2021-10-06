@@ -1,5 +1,6 @@
 package com.uneeddevs.finances.dto;
 
+import com.uneeddevs.finances.util.CheckUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
@@ -7,7 +8,7 @@ import org.springframework.lang.NonNull;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static com.uneeddevs.finances.util.CheckUtils.*;
 
 @Getter
 @Schema(name = "Bank account response")
@@ -23,12 +24,9 @@ public class BankAccountResponseDTO {
     public BankAccountResponseDTO(@NonNull UUID id,
                                   @NonNull String name,
                                   @NonNull BigDecimal balance) {
-        if(balance.doubleValue() < 0)
-            throw new IllegalArgumentException("Initial balance cannot be negative");
-        this.balance = balance;
-        if(isBlank(name))
-            throw new IllegalArgumentException("Account name cannot be empty or null");
-        this.name = name;
-        this.id = id;
+        this.balance = requirePositive(CheckUtils.requireNonNull(balance, "balance is mandatory"),
+                "Initial balance cannot be negative");
+        this.name = requireNotBlank(name, "Account name cannot be empty or null");
+        this.id = requireNonNull(id, "id is mandatory");
     }
 }

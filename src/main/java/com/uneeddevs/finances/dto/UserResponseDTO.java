@@ -2,7 +2,6 @@ package com.uneeddevs.finances.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
@@ -10,7 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static com.uneeddevs.finances.util.CheckUtils.requireNonNull;
+import static com.uneeddevs.finances.util.CheckUtils.requireNotBlank;
 
 @Getter
 @Schema(name = "User response", description = "User request response payload")
@@ -30,19 +30,13 @@ public class UserResponseDTO {
                            @NonNull String name,
                            @NonNull String email,
                            @NonNull LocalDateTime registerDate) {
-        this.id = id;
-        this.registerDate = registerDate;
-        if(isBlank(name))
-            throw new IllegalArgumentException("Name is mandatory");
-        this.name = name;
-        if(isBlank(email))
-            throw new IllegalArgumentException("Email is mandatory");
-        this.email = email;
+        this.id = requireNonNull(id, "id is mandatory");
+        this.registerDate = requireNonNull(registerDate, "register date is mandatory");
+        this.name = requireNotBlank(name, "Name is mandatory");
+        this.email = requireNotBlank(email, "Email is mandatory");
     }
 
     public void addProfile(String profile) {
-        if(StringUtils.isBlank(profile))
-            throw new IllegalArgumentException("Profile cannot be null");
-        profiles.add(profile);
+        profiles.add(requireNotBlank(profile, "Profile cannot be null"));
     }
 }

@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.uneeddevs.finances.util.CheckUtils.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Entity
@@ -46,13 +47,10 @@ public class BankAccount {
     public BankAccount(@NonNull BigDecimal balance,
                        @NonNull String name,
                        @NonNull User user) {
-        if(balance.doubleValue() < 0)
-            throw new IllegalArgumentException("Initial balance cannot be negative");
-        this.balance = balance;
-        if(isBlank(name))
-            throw new IllegalArgumentException("Account name cannot be empty or null");
-        this.name = name;
-        this.user = user;
+        this.balance = requirePositive(requireNonNull(balance, "initial balance is mandatory"),
+                "Initial balance cannot be negative");
+        this.name = requireNotBlank(name, "Account name cannot be empty or null");
+        this.user = requireNonNull(user, "User is mandatory");
     }
 
     public UUID getUserId() {
