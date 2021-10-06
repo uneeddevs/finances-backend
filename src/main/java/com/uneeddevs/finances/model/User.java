@@ -15,6 +15,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.uneeddevs.finances.util.CheckUtils.requireNonNull;
 import static com.uneeddevs.finances.util.CheckUtils.requireNotBlank;
 import static java.util.Objects.isNull;
 
@@ -53,6 +54,10 @@ public class User {
     @JoinColumn(name = "USER_ID")
     @ToString.Exclude
     private final Set<BankAccount> bankAccounts = new HashSet<>();
+
+    public User(UUID uuid) {
+        this.id = requireNonNull(uuid, "id is mandatory");
+    }
 
     public User(UUID uuid, @NonNull String name, @NonNull String password) {
         this.id = uuid;

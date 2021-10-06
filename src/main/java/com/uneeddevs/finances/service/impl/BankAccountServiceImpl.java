@@ -7,7 +7,6 @@ import com.uneeddevs.finances.service.BankAccountService;
 import com.uneeddevs.finances.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
@@ -25,7 +24,12 @@ public class BankAccountServiceImpl implements BankAccountService {
     @Override
     public List<BankAccount> findByUser(User user) {
         //TODO implement this method
-        throw new NotImplementedException("Method not implemented");
+        final UUID userId = user.getId();
+        User userResponse = userService.findById(userId);
+        List<BankAccount> bankAccounts = bankAccountRepository.findByUser(userResponse);
+        if(!bankAccounts.isEmpty())
+            return  bankAccounts;
+        throw new NoResultException(String.format("No bank accounts for user %s", userId));
     }
 
     @Override

@@ -2,11 +2,14 @@ package com.uneeddevs.finances.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uneeddevs.finances.dto.BankAccountInsertDTO;
+import com.uneeddevs.finances.dto.BankAccountResponseDTO;
 import com.uneeddevs.finances.dto.BankAccountUpdateDTO;
 import com.uneeddevs.finances.mocks.BankAccountInsertDTOMock;
 import com.uneeddevs.finances.mocks.BankAccountMock;
 import com.uneeddevs.finances.mocks.BankAccountUpdateDTOMock;
+import com.uneeddevs.finances.mocks.UserMock;
 import com.uneeddevs.finances.model.BankAccount;
+import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.service.BankAccountService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +23,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.NoResultException;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -229,4 +234,45 @@ class BankAccountControllerTest {
         mockMvc.perform(delete(BASE_PATH + "/{uuid}", id))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    void testTestFindByUserExpectedSuccess() throws Exception {
+        BankAccount bankAccountMock = BankAccountMock.mock();
+        List<BankAccount> bankAccountList = Collections.singletonList(bankAccountMock);
+        String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+        User user = UserMock.mock(false);
+        when(bankAccountService.findByUser(user)).thenReturn(bankAccountList);
+        final List<BankAccountResponseDTO> response = Collections.singletonList(bankAccountMock.toBankAccountResponseDTO());
+        mockMvc.perform(get(BASE_PATH + "/search?user={userid}", id))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(response), false));
+
+        verify(bankAccountService).findByUser(user);
+    }
+
+    @Test
+    void testTestFindByUserExpectedNotFound() throws Exception {
+        String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+        User user = UserMock.mock(false);
+        when(bankAccountService.findByUser(user)).thenThrow(new NoResultException("No bank account founded"));
+        mockMvc.perform(get(BASE_PATH + "/search?user={userid}", id))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(bankAccountService).findByUser(user);
+    }
+
+    @Test
+    void testTestFindByUserExpectedBadRequest() throws Exception {
+        String id = "3fa85f64c-2c963f66afa6";
+        User user = UserMock.mock(false);
+        when(bankAccountService.findByUser(user)).thenThrow(new NoResultException("No bank account founded"));
+        mockMvc.perform(get(BASE_PATH + "/search?user={userid}", id))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(bankAccountService, never()).findByUser(user);
+    }
+
 }
