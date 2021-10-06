@@ -19,7 +19,7 @@ public class BankAccountInsertDTO {
     @NotBlank(message = "Name is mandatory")
     private String name;
     @NotNull(message = "User id cannot be null")
-    @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", name = "userID", required = true)
+    @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", name = "userId", required = true)
     private UUID userId;
     @PositiveOrZero(message = "Initial balance cannot cannot be negative")
     @NotNull(message = "Initial balance cannot be null")

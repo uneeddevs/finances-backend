@@ -1,7 +1,11 @@
 package com.uneeddevs.finances.model;
 
 import com.uneeddevs.finances.dto.UserResponseDTO;
-import lombok.*;
+import com.uneeddevs.finances.util.CheckUtils;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -11,8 +15,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.uneeddevs.finances.util.CheckUtils.requireNotBlank;
 import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Entity
 @Getter
@@ -52,24 +56,14 @@ public class User {
 
     public User(UUID uuid, @NonNull String name, @NonNull String password) {
         this.id = uuid;
-        if(isBlank(name))
-            throw new IllegalArgumentException("Name is mandatory");
-        this.name = name;
-        if(isBlank(password))
-            throw new IllegalArgumentException("Password is mandatory");
-        this.password = password;
+        this.name = requireNotBlank(name, "Name is mandatory");
+        this.password = requireNotBlank(password, "Password is mandatory");
     }
 
     public User(@NonNull String name, @NonNull String email, @NonNull String password) {
-        if(isBlank(name))
-            throw new IllegalArgumentException("Name is mandatory");
-        this.name = name;
-        if(isBlank(email))
-            throw new IllegalArgumentException("Email is mandatory");
-        this.email = email;
-        if(isBlank(password))
-            throw new IllegalArgumentException("Password is mandatory");
-        this.password = password;
+        this.name = requireNotBlank(name, "Name is mandatory");
+        this.email = requireNotBlank(email, "Email is mandatory");
+        this.password = requireNotBlank(password, "Password is mandatory");
     }
 
     public Set<Profile> getProfiles() {
@@ -81,9 +75,7 @@ public class User {
     }
 
     public void addBankAccount(BankAccount bankAccount) {
-        if(isNull(bankAccount))
-            throw new IllegalArgumentException("Bank account cannot be null");
-        bankAccounts.add(bankAccount);
+        bankAccounts.add(CheckUtils.requireNonNull(bankAccount, "Bank account cannot be null"));
     }
 
     public void addProfile(Profile profile) {

@@ -1,5 +1,6 @@
 package com.uneeddevs.finances.model;
 
+import com.uneeddevs.finances.util.CheckUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -10,8 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Objects;
-
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Entity
 @Getter
@@ -26,9 +25,7 @@ public class Profile {
     private String roleName;
 
     public Profile(@NonNull String roleName) {
-        if(isBlank(roleName))
-            throw new IllegalArgumentException("Role Name is mandatory");
-        this.roleName = roleName;
+        this.roleName = CheckUtils.requireNotBlank(roleName, "Role Name is mandatory");
     }
 
     @Override
