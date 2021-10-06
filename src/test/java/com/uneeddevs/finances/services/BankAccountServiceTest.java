@@ -43,7 +43,7 @@ class BankAccountServiceTest {
         when(userService.findById(userID)).thenReturn(userMock);
         when(bankAccountRepository.save(bankAccount)).thenReturn(bankAccount);
 
-        BankAccount persistBankAccount = bankAccountService.insert(bankAccount);
+        BankAccount persistBankAccount = bankAccountService.save(bankAccount);
 
         assertNotNull(persistBankAccount, "Persist bank account cannot be null");
 
@@ -61,7 +61,7 @@ class BankAccountServiceTest {
         when(userService.findById(userID)).thenThrow(NoResultException.class);
         when(bankAccountRepository.save(bankAccount)).thenReturn(bankAccount);
 
-        assertThrows(NoResultException.class, () -> bankAccountService.insert(bankAccount));
+        assertThrows(NoResultException.class, () -> bankAccountService.save(bankAccount));
 
         verify(userService).findById(userID);
         verify(bankAccountRepository, never()).save(bankAccount);

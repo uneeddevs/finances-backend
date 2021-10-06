@@ -51,7 +51,7 @@ public class BankAccountController {
             )})
     public ResponseEntity<BankAccount> insert(@RequestBody @Valid BankAccountInsertDTO bankAccountInsert, HttpServletRequest request) {
         log.info("Receive POST create bank account by ip: {}", request.getRemoteAddr());
-        return ResponseEntity.status(HttpStatus.CREATED).body(bankAccountService.insert(bankAccountInsert.toModel()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(bankAccountService.save(bankAccountInsert.toModel()));
     }
 
     @GetMapping(value = "/{uuid}")

@@ -48,7 +48,7 @@ class BankAccountControllerTest {
 
         BankAccount bankAccountMock = BankAccountMock.mock();
         BankAccountInsertDTO bankAccountInsertDTOMock = BankAccountInsertDTOMock.mock();
-        when(bankAccountService.insert(any(BankAccount.class))).thenReturn(bankAccountMock);
+        when(bankAccountService.save(any(BankAccount.class))).thenReturn(bankAccountMock);
 
         mockMvc.perform(post(BASE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -57,7 +57,7 @@ class BankAccountControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().json(objectMapper.writeValueAsString(bankAccountMock.toBankAccountResponseDTO()), false));
 
-        verify(bankAccountService).insert(any(BankAccount.class));
+        verify(bankAccountService).save(any(BankAccount.class));
 
     }
 
@@ -71,7 +71,7 @@ class BankAccountControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        verify(bankAccountService, never()).insert(any(BankAccount.class));
+        verify(bankAccountService, never()).save(any(BankAccount.class));
     }
 
     private static Stream<Arguments> badRequestCreateBankAccountProvider() {
@@ -88,28 +88,28 @@ class BankAccountControllerTest {
     void testInsertNewBankAccountWithNonexistentUserExpectedNotFound() throws Exception{
 
         BankAccountInsertDTO bankAccountInsertDTOMock = BankAccountInsertDTOMock.mock();
-        when(bankAccountService.insert(any(BankAccount.class))).thenThrow(new NoResultException("No user founded"));
+        when(bankAccountService.save(any(BankAccount.class))).thenThrow(new NoResultException("No user founded"));
         mockMvc.perform(post(BASE_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(bankAccountInsertDTOMock)))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
-        verify(bankAccountService).insert(any(BankAccount.class));
+        verify(bankAccountService).save(any(BankAccount.class));
     }
 
     @Test
     void testInsertNewBankAccountExpectedInternalServerError() throws Exception{
 
         BankAccountInsertDTO bankAccountInsertDTOMock = BankAccountInsertDTOMock.mock();
-        when(bankAccountService.insert(any(BankAccount.class))).thenThrow(new RuntimeException("error"));
+        when(bankAccountService.save(any(BankAccount.class))).thenThrow(new RuntimeException("error"));
         mockMvc.perform(post(BASE_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(bankAccountInsertDTOMock)))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError());
 
-        verify(bankAccountService).insert(any(BankAccount.class));
+        verify(bankAccountService).save(any(BankAccount.class));
     }
 
     @Test
