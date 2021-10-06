@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.4</version>
+		<version>2.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.uneeddevs</groupId>
@@ -14,11 +14,10 @@
 	<name>finances</name>
 	<description>Finance management</description>
 	<properties>
-		<java.version>11</java.version>
-		<spring-doc.openapi.version>1.5.10</spring-doc.openapi.version>
-		<springdoc-openapi-maven-plugin>0.2</springdoc-openapi-maven-plugin>
+		<java.version>17</java.version>
+		<spring-doc.openapi.version>1.5.11</spring-doc.openapi.version>
+		<springdoc-openapi-maven-plugin>1.3</springdoc-openapi-maven-plugin>
 		<sonar-maven-plugin.version>3.9.0.2155</sonar-maven-plugin.version>
-		<build-helper-maven-plugin.version>3.1.0</build-helper-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
 	</properties>
 	<dependencies>

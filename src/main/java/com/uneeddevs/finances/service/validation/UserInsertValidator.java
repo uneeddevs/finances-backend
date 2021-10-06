@@ -30,8 +30,8 @@ public class UserInsertValidator implements ConstraintValidator<UserInsert, User
 
         for(FieldMessage fieldMessage: list){
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(fieldMessage.getMessage())
-                    .addPropertyNode(fieldMessage.getFieldName())
+            context.buildConstraintViolationWithTemplate(fieldMessage.message())
+                    .addPropertyNode(fieldMessage.fieldName())
                     .addConstraintViolation();
         }
 
