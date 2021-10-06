@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.uneeddevs.finances.util.CheckUtils.*;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Entity
 @Getter
@@ -42,9 +41,7 @@ public class BankAccount {
     public BankAccount(@NonNull UUID id,
                        @NonNull String name) {
         this.id = id;
-        if(isBlank(name))
-            throw new IllegalArgumentException("Account name cannot be empty or null");
-        this.name = name;
+        this.name = requireNotBlank(name, "Account name cannot be empty or null");
     }
 
     public BankAccount(@NonNull BigDecimal balance,
