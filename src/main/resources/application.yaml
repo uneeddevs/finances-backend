@@ -1,16 +1,24 @@
+server:
+  compression:
+    enabled: true
+
 spring:
+  sql:
+    init:
+      mode: always
   datasource:
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: jdbc:postgresql://${POSTGRESQL_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DATABASE_NAME:finances}
+    username: ${POSTGRES_USERNAME:finances_user}
+    password: ${POSTGRES_PASSWORD:finances_password}
   jpa:
-    show-sql: true
+    show-sql: ${SHOW_SQL:true}
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: true
+
 
 springdoc:
   api-docs:
