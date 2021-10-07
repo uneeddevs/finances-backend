@@ -1,10 +1,24 @@
-version: "3"
+version: '3.1'
 
 services:
 
-  sonar-cube:
-    container_name: sonar_cube
-    image: sonarqube:9.1.0-community
+  database:
+    container_name: finances-database
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_PASSWORD: finances_password
+      POSTGRES_USER: finances_user
+      POSTGRES_DB: finances
+    volumes:
+      - postgres_finances_db:/var/lib/postgresql/data
     ports:
-      - 9000:9000
-      - 9001:9001
+      - "5432:5432"
+
+  adminer:
+    container_name: database_adminer
+    image: adminer
+    ports:
+      - "80:8080"
+
+volumes:
+  postgres_finances_db:
