@@ -1,5 +1,6 @@
 package com.uneeddevs.finances.service.impl;
 
+import com.uneeddevs.finances.enums.MovementType;
 import com.uneeddevs.finances.model.BankAccount;
 import com.uneeddevs.finances.model.Movement;
 import com.uneeddevs.finances.repository.MovementRepository;
@@ -30,10 +31,11 @@ public class MovementServiceImpl implements MovementService {
         BankAccount bankAccount = bankAccountService.findById(bankAccountId);
         final BigDecimal movementValue = movement.getValue();
         log.info("Validating movement typ and perform balance update");
-        switch (movement.getMovementType()) {
-            case INPUT -> bankAccount.addBalance(movementValue);
-            case OUTPUT -> bankAccount.subtractBalance(movementValue);
-        }
+        if (movement.getMovementType() == MovementType.INPUT)
+            bankAccount.addBalance(movementValue);
+        else
+            bankAccount.subtractBalance(movementValue);
+
         log.info("Performing movement save");
         final Movement persistedMovement = movementRepository.save(movement);
         saveBankAccount(bankAccount);
@@ -56,10 +58,10 @@ public class MovementServiceImpl implements MovementService {
         final Movement movement = findById(id);
         final BankAccount bankAccount = movement.getBankAccount();
         final BigDecimal movementValue = movement.getValue();
-        switch (movement.getMovementType()) {
-            case INPUT -> bankAccount.subtractBalance(movementValue);
-            case OUTPUT -> bankAccount.addBalance(movementValue);
-        }
+        if(movement.getMovementType() == MovementType.INPUT)
+            bankAccount.subtractBalance(movementValue);
+        else
+            bankAccount.addBalance(movementValue);
         saveBankAccount(bankAccount);
         movementRepository.delete(movement);
     }
