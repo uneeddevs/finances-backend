@@ -13,10 +13,16 @@ public class BankAccountMock {
     private static final UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
 
     public static BankAccount mock() throws Exception {
+        return mock(false);
+    }
+
+    public static BankAccount mock(boolean withMovements) throws Exception {
         BankAccount bankAccount = new BankAccount(BigDecimal.ZERO, "Account 1", UserMock.mock(false));
         Field field = BankAccount.class.getDeclaredField("id");
         field.setAccessible(true);
         field.set(bankAccount, uuid);
+        if(withMovements)
+            bankAccount.addMovement(MovementMock.mock(true));
         return bankAccount;
     }
 

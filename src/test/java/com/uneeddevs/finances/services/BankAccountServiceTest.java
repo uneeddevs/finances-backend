@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.persistence.NoResultException;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,7 +45,7 @@ class BankAccountServiceTest {
         when(userService.findById(userID)).thenReturn(userMock);
         when(bankAccountRepository.save(bankAccount)).thenReturn(bankAccount);
 
-        BankAccount persistBankAccount = bankAccountService.insert(bankAccount);
+        BankAccount persistBankAccount = bankAccountService.save(bankAccount);
 
         assertNotNull(persistBankAccount, "Persist bank account cannot be null");
 
@@ -61,7 +63,7 @@ class BankAccountServiceTest {
         when(userService.findById(userID)).thenThrow(NoResultException.class);
         when(bankAccountRepository.save(bankAccount)).thenReturn(bankAccount);
 
-        assertThrows(NoResultException.class, () -> bankAccountService.insert(bankAccount));
+        assertThrows(NoResultException.class, () -> bankAccountService.save(bankAccount));
 
         verify(userService).findById(userID);
         verify(bankAccountRepository, never()).save(bankAccount);
@@ -180,6 +182,53 @@ class BankAccountServiceTest {
         assertEquals("No bank account with id 3fa85f64-5717-4562-b3fc-2c963f66afa6",
                 noResultException.getMessage(),
                 "Expected message: No bank account with id 3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    }
+
+    @Test
+    void testFindByUserExpectedSuccess() throws Exception {
+        BankAccount bankAccount = BankAccountMock.mock();
+        List<BankAccount> bankAccountList = Collections.singletonList(bankAccount);
+        User user = UserMock.mock(false);
+        UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+
+        when(userService.findById(uuid)).thenReturn(user);
+        when(bankAccountRepository.findByUser(user)).thenReturn(bankAccountList);
+
+        List<BankAccount> methodResponse = bankAccountService.findByUser(user);
+
+        assertFalse(methodResponse.isEmpty(), "Bank account list cannot be empty");
+
+        verify(userService).findById(uuid);
+        verify(bankAccountRepository).findByUser(user);
+
+    }
+
+    @Test
+    void testFindByUserWithNonExistentUserExpectedNoResultException() throws Exception {
+        User user = UserMock.mock(false);
+        UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+
+        when(userService.findById(uuid)).thenThrow(new NoResultException("No user"));
+
+        assertThrows(NoResultException.class, () -> bankAccountService.findByUser(user));
+
+        verify(userService).findById(uuid);
+        verify(bankAccountRepository, never()).findByUser(user);
+    }
+
+    @Test
+    void testFindByUserExpectedNoResultException() throws Exception {
+        User user = UserMock.mock(false);
+        UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+
+        when(userService.findById(uuid)).thenReturn(user);
+        when(bankAccountRepository.findByUser(user)).thenReturn(Collections.emptyList());
+
+        assertThrows(NoResultException.class, () -> bankAccountService.findByUser(user));
+
+        verify(userService).findById(uuid);
+        verify(bankAccountRepository).findByUser(user);
+
     }
 
 }

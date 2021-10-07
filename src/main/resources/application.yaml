@@ -7,9 +7,10 @@ spring:
     console:
       enabled: true
       path: /h2-console
-    jpa:
-      hibernate:
-        ddl-auto: create-drop
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
 
 springdoc:
   api-docs:

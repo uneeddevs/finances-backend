@@ -6,6 +6,7 @@ import com.uneeddevs.finances.dto.BankAccountInsertDTO;
 import com.uneeddevs.finances.dto.BankAccountResponseDTO;
 import com.uneeddevs.finances.dto.BankAccountUpdateDTO;
 import com.uneeddevs.finances.model.BankAccount;
+import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.service.BankAccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -51,7 +53,7 @@ public class BankAccountController {
             )})
     public ResponseEntity<BankAccount> insert(@RequestBody @Valid BankAccountInsertDTO bankAccountInsert, HttpServletRequest request) {
         log.info("Receive POST create bank account by ip: {}", request.getRemoteAddr());
-        return ResponseEntity.status(HttpStatus.CREATED).body(bankAccountService.insert(bankAccountInsert.toModel()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(bankAccountService.save(bankAccountInsert.toModel()));
     }
 
     @GetMapping(value = "/{uuid}")
@@ -74,6 +76,29 @@ public class BankAccountController {
     public ResponseEntity<BankAccount> findById(@PathVariable(value = "uuid") UUID uuid, HttpServletRequest request){
         log.info("Receive get bank account by id[{}] by ip: {}", uuid, request.getRemoteAddr());
         return ResponseEntity.ok(bankAccountService.findById(uuid));
+    }
+
+    @GetMapping(value = "/search")
+    @Operation(summary = "Find bank accounts ",
+            method = "GET",
+            description = "Find bank accounts by user")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Found bank account",
+                    content =  {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BankAccountResponseDTO.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Bank account not found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = StandardError.class))}
+            )})
+    public ResponseEntity<List<BankAccount>> findByUser(@RequestParam(value = "user") UUID uuid, HttpServletRequest request){
+        log.info("Receive get bank account by user[{}] by ip: {}", uuid, request.getRemoteAddr());
+        final User user = new User(uuid);
+        return ResponseEntity.ok(bankAccountService.findByUser(user));
     }
 
     @DeleteMapping(value = "/{uuid}")

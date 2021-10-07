@@ -9,11 +9,9 @@ import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static com.uneeddevs.finances.util.CheckUtils.*;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Entity
 @Getter
@@ -35,13 +33,15 @@ public class BankAccount {
     @ToString.Exclude
     @JoinColumn(nullable = false)
     private User user;
+    @OneToMany
+    @ToString.Exclude
+    @JoinColumn(name = "BANK_ACCOUNT_ID")
+    private final Set<Movement> movements = new HashSet<>();
 
     public BankAccount(@NonNull UUID id,
                        @NonNull String name) {
         this.id = id;
-        if(isBlank(name))
-            throw new IllegalArgumentException("Account name cannot be empty or null");
-        this.name = name;
+        this.name = requireNotBlank(name, "Account name cannot be empty or null");
     }
 
     public BankAccount(@NonNull BigDecimal balance,
@@ -58,17 +58,24 @@ public class BankAccount {
     }
 
     public void subtractBalance(@NonNull BigDecimal value) {
-        if(value.doubleValue() < 0)
-            throw new IllegalArgumentException("Value to subtract cannot be negative");
+        requireNonNull(requirePositive(value, "Value to add cannot be negative"),
+                "Value cannot be null");
         if(value.doubleValue() > balance.doubleValue())
             throw new IllegalArgumentException("Value to subtract cannot be greater than balance");
         balance = balance.subtract(value);
     }
 
     public void addBalance(@NonNull BigDecimal value) {
-        if(value.doubleValue() < 0)
-            throw new IllegalArgumentException("Value to add cannot be negative");
-        balance = balance.add(value);
+        balance = balance.add(requireNonNull(requirePositive(value, "Value to add cannot be negative"),
+                "Value cannot be null"));
+    }
+
+    public Set<Movement> getMovements() {
+        return Collections.unmodifiableSet(movements);
+    }
+
+    public void addMovement(Movement movement) {
+        movements.add(requireNonNull(movement, "Movement cannot be null"));
     }
 
     public BankAccountResponseDTO toBankAccountResponseDTO(){

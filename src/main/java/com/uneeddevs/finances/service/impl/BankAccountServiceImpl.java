@@ -1,6 +1,7 @@
 package com.uneeddevs.finances.service.impl;
 
 import com.uneeddevs.finances.model.BankAccount;
+import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.repository.BankAccountRepository;
 import com.uneeddevs.finances.service.BankAccountService;
 import com.uneeddevs.finances.service.UserService;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -19,16 +21,21 @@ public class BankAccountServiceImpl implements BankAccountService {
     private final BankAccountRepository bankAccountRepository;
     private final UserService userService;
 
-
-    private BankAccount save(BankAccount bankAccount) {
-        log.info("Performing persisting for bank account {}", bankAccount);
-        return bankAccountRepository.save(bankAccount);
+    @Override
+    public List<BankAccount> findByUser(User user) {
+        final UUID userId = user.getId();
+        User userResponse = userService.findById(userId);
+        List<BankAccount> bankAccounts = bankAccountRepository.findByUser(userResponse);
+        if(!bankAccounts.isEmpty())
+            return  bankAccounts;
+        throw new NoResultException(String.format("No bank accounts for user %s", userId));
     }
 
     @Override
-    public BankAccount insert(BankAccount bankAccount) {
+    public BankAccount save(BankAccount bankAccount) {
+        log.info("Performing persistent bank account {}", bankAccount);
         userService.findById(bankAccount.getUserId());
-        return save(bankAccount);
+        return bankAccountRepository.save(bankAccount);
     }
 
     @Override

@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -98,6 +99,20 @@ class BankAccountTest {
         BankAccount bankAccount = BankAccountMock.mock();
         BankAccountResponseDTO response = assertDoesNotThrow(bankAccount::toBankAccountResponseDTO, "Cannot throws nothing");
         assertNotNull(response, "Bank account response cannot be null");
+    }
+
+    @Test
+    void testWithMovementsExpectedNotEmpty() throws Exception {
+        BankAccount bankAccount = BankAccountMock.mock(true);
+        Set<Movement> movements = bankAccount.getMovements();
+        assertFalse(movements.isEmpty());
+    }
+
+    @Test
+    void testWithMovementsExpectedEmpty() throws Exception {
+        BankAccount bankAccount = BankAccountMock.mock(false);
+        Set<Movement> movements = bankAccount.getMovements();
+        assertTrue(movements.isEmpty());
     }
 
     private static Stream<Arguments> illegalArgumentBankAccountProvider() throws Exception{
