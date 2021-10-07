@@ -40,6 +40,19 @@ public class ControllerAdvice {
         return ResponseEntity.status(httpStatus).body(validationError);
     }
 
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<StandardError> badRequest(IllegalArgumentException ex, HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        return ResponseEntity.status(httpStatus).body(StandardError.builder()
+                .error(BAD_REQUEST_TEXT)
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .time(LocalDateTime.now())
+                .status(httpStatus.value())
+                .build());
+    }
+
     @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<StandardError> badRequest(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {

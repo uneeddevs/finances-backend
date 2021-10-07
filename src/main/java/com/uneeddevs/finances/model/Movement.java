@@ -1,5 +1,6 @@
 package com.uneeddevs.finances.model;
 
+import com.uneeddevs.finances.dto.MovementResponseDTO;
 import com.uneeddevs.finances.enums.MovementType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,5 +52,9 @@ public class Movement {
 
     public MovementType getMovementType() {
         return MovementType.valueOf(movementType);
+    }
+
+    public MovementResponseDTO toMovementResponseDTO() {
+        return new MovementResponseDTO(id, MovementType.valueOf(movementType), value, movementDate);
     }
 }

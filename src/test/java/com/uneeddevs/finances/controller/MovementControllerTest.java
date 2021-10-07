@@ -2,6 +2,7 @@ package com.uneeddevs.finances.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uneeddevs.finances.dto.MovementInsertDTO;
+import com.uneeddevs.finances.dto.MovementResponseDTO;
 import com.uneeddevs.finances.enums.MovementType;
 import com.uneeddevs.finances.mocks.MovementMock;
 import com.uneeddevs.finances.model.Movement;
@@ -18,13 +19,16 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.NoResultException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,7 +57,7 @@ class MovementControllerTest {
         mockMvc.perform(get(BASE_PATH + "/{uuid}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json(objectMapper.writeValueAsString(movement)));
+                .andExpect(content().json(objectMapper.writeValueAsString(movement.toMovementResponseDTO())));
 
         verify(movementService).findById(uuid);
     }
@@ -129,5 +133,106 @@ class MovementControllerTest {
         );
     }
 
+    @Test
+    void testDeleteByIdExpectedNoContentStatus() throws Exception {
+
+        UUID uuid = UUID.fromString(id);
+        doNothing().when(movementService).deleteMovementById(uuid);
+
+        mockMvc.perform(delete(BASE_PATH + "/{uuid}", id))
+                .andExpect(status().isNoContent());
+
+        verify(movementService).deleteMovementById(uuid);
+    }
+
+    @Test
+    void testDeleteByIdExpectedNotFoundStatus() throws Exception {
+
+        UUID uuid = UUID.fromString(id);
+        doThrow(new NoResultException("No movement")).when(movementService).deleteMovementById(uuid);
+
+        mockMvc.perform(delete(BASE_PATH + "/{uuid}", id))
+                .andExpect(status().isNotFound());
+
+        verify(movementService).deleteMovementById(uuid);
+    }
+
+    @Test
+    void testDeleteByIdExpectedBadRequestStatus() throws Exception {
+
+        String id = "3fa85f64-6afa6";
+        doThrow(new NoResultException("No movement")).when(movementService).deleteMovementById(any(UUID.class));
+
+        mockMvc.perform(delete(BASE_PATH + "/{uuid}", id))
+                .andExpect(status().isBadRequest());
+
+        verify(movementService, never()).deleteMovementById(any(UUID.class));
+    }
+
+    @Test
+    void testFindByPeriodExpectedIsOkStatus() throws Exception {
+        String start = "2021-10-06T20:43:03Z";
+        String end = "2021-10-05T20:43:03Z";
+        String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+        final List<Movement> movements = Collections
+                .singletonList(MovementMock.mock(false));
+
+        final List<MovementResponseDTO> movementResponseDTOS = movements
+                .stream()
+                .map(Movement::toMovementResponseDTO).collect(Collectors.toList());
+
+        when(movementService
+                .findByPeriodAndBankAccount(any(LocalDateTime.class),
+                        any(LocalDateTime.class),
+                        any(UUID.class)))
+                .thenReturn(movements);
+
+        mockMvc.perform(get(BASE_PATH + "/search?start={start}&end={end}&bankAccount={id}", start, end, id))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(movementResponseDTOS)));
+
+        verify(movementService).findByPeriodAndBankAccount(any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                any(UUID.class));
+    }
+
+    @Test
+    void testFindByPeriodExpectedNotFoundStatus() throws Exception {
+        String start = "2021-10-06T20:43:03Z";
+        String end = "2021-10-05T20:43:03Z";
+        String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+
+        when(movementService
+                .findByPeriodAndBankAccount(any(LocalDateTime.class),
+                        any(LocalDateTime.class),
+                        any(UUID.class)))
+                .thenThrow(new NoResultException("No Movements"));
+
+        mockMvc.perform(get(BASE_PATH + "/search?start={start}&end={end}&bankAccount={id}", start, end, id))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "badRequestGetSource")
+    void testFindByPeriodExpectedBadRequestStatus(String start, String end, String id) throws Exception {
+
+        mockMvc.perform(get(BASE_PATH + "/search?start={start}&end={end}&bankAccount={id}", start, end, id))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(movementService, never()).findByPeriodAndBankAccount(any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                any(UUID.class));
+    }
+
+    private static Stream<Arguments> badRequestGetSource() {
+        return Stream.of(
+                Arguments.of("2021-10-0620:43:03Z", "2021-10-05T20:43:03Z", "3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                Arguments.of("2021-10-06T20:43:03Z", "2021-:43:03Z", "3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                Arguments.of("2021-10-06T20:43:03Z", "2021-10-05T20:43:03Z", "3fa85f64-3f66afa6")
+        );
+    }
 
 }
