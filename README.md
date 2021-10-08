@@ -19,7 +19,7 @@ change password to admin1 and run ``` mvn clean package verify sonar:sonar -Dson
 
 <hr>
 
-#Database
+### Database
 
 This project use Postgres database, to start a local postgres database use  ```docker-compose up -d``` to start the database.
 To use another host, username, password and port use environments variables:
@@ -33,3 +33,7 @@ POSTGRES_PASSWORD=database_password
 ```
 
 In first start of application is created the tables and is inserted user profiles and movement types
+
+# DOCUMENTATION
+
+To se the documentation (swagger ui) start the application go to web browser and go to address ```http://localhost:8080/documentation```
