@@ -4,8 +4,10 @@ import com.uneeddevs.finances.enums.ProfileRole;
 import com.uneeddevs.finances.model.Profile;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.repository.UserRepository;
+import com.uneeddevs.finances.security.exception.AuthenticationFailException;
 import com.uneeddevs.finances.service.ProfileService;
 import com.uneeddevs.finances.service.UserService;
+import com.uneeddevs.finances.util.UserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByEmail(String username) {
+        if(!UserUtil.hasAuthority(ProfileRole.ADMIN)
+                && !username.equalsIgnoreCase(UserUtil.authenticatedUsername()))
+            throw new AuthenticationFailException("Forbidden");
         log.info("Searching user by username: {}", username);
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> {
@@ -57,6 +62,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(UUID uuid) {
+        if(!UserUtil.hasAuthority(ProfileRole.ADMIN)
+                && !uuid.equals(UserUtil.authenticatedUUID()))
+            throw new AuthenticationFailException("Forbidden");
         return userRepository.findById(uuid)
                 .orElseThrow(() ->{
                     String message = String.format("No user with UUID %s", uuid);
@@ -77,6 +85,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user) {
+        if(!UserUtil.hasAuthority(ProfileRole.ADMIN)
+                && !user.getId().equals(UserUtil.authenticatedUUID()))
+            throw new AuthenticationFailException("Forbidden");
         User oldUser = findById(user.getId());
         updateOldUserObject(oldUser, user);
         return save(oldUser);

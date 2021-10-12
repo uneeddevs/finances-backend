@@ -1,6 +1,7 @@
 package com.uneeddevs.finances.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uneeddevs.finances.config.PasswordManagerConfig;
 import com.uneeddevs.finances.config.SecurityConfig;
 import com.uneeddevs.finances.controller.exception.ValidationError;
 import com.uneeddevs.finances.dto.UserInsertDTO;
@@ -8,6 +9,7 @@ import com.uneeddevs.finances.dto.UserUpdateDTO;
 import com.uneeddevs.finances.mocks.UserMock;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.security.SecurityMock;
+import com.uneeddevs.finances.security.exception.AuthenticationFailException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -37,8 +39,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(SecurityConfig.class)
 @WebMvcTest(UserController.class)
+@Import({SecurityConfig.class, PasswordManagerConfig.class})
 class UserControllerTest extends SecurityMock {
 
     @Autowired
@@ -68,6 +70,15 @@ class UserControllerTest extends SecurityMock {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(user.toUserResponseDTO())));
+        verify(userService).findById(any(UUID.class));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void testFindUserByIdExpectedForbiddenStatus() throws Exception {
+        when(userService.findById(any(UUID.class))).thenThrow(new AuthenticationFailException("Forbidden"));
+        mockMvc.perform(get("/users/{uuid}", "3fa85f64-5717-4562-b3fc-2c963f66afa6"))
+                .andExpect(status().isForbidden());
         verify(userService).findById(any(UUID.class));
     }
 
@@ -209,6 +220,7 @@ class UserControllerTest extends SecurityMock {
 
         verify(userService).findPage(any(Pageable.class));
     }
+
 
     @Test
     @WithMockUser(roles = "USER")

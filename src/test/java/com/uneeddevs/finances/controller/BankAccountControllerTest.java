@@ -1,6 +1,8 @@
 package com.uneeddevs.finances.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uneeddevs.finances.config.PasswordManagerConfig;
+import com.uneeddevs.finances.config.SecurityConfig;
 import com.uneeddevs.finances.dto.BankAccountInsertDTO;
 import com.uneeddevs.finances.dto.BankAccountResponseDTO;
 import com.uneeddevs.finances.dto.BankAccountUpdateDTO;
@@ -19,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BankAccountController.class)
+@Import({SecurityConfig.class, PasswordManagerConfig.class})
 class BankAccountControllerTest extends SecurityMock {
 
     private final String BASE_PATH = "/bank-accounts";
