@@ -27,6 +27,7 @@ import java.util.Arrays;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final String[] PUBLIC_MATCHERS_POST = {"/users", "/login"};
+    private final String[] ADMIN_MATCHERS = {"/users/page"};
 
     private final ObjectMapper objectMapper;
     private final UserService userService;
@@ -37,6 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable();
         http.authorizeRequests()
+                .antMatchers(ADMIN_MATCHERS).hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST)
                 .permitAll()
                 .anyRequest().authenticated();

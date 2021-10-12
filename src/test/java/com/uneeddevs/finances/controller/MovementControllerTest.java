@@ -6,6 +6,7 @@ import com.uneeddevs.finances.dto.MovementResponseDTO;
 import com.uneeddevs.finances.enums.MovementType;
 import com.uneeddevs.finances.mocks.MovementMock;
 import com.uneeddevs.finances.model.Movement;
+import com.uneeddevs.finances.security.SecurityMock;
 import com.uneeddevs.finances.service.MovementService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.NoResultException;
@@ -33,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MovementController.class)
-class MovementControllerTest {
+class MovementControllerTest extends SecurityMock {
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,6 +50,7 @@ class MovementControllerTest {
     private static final String BASE_PATH = "/movements";
 
     @Test
+    @WithMockUser(roles = "USER")
     void testFindMovementByIdExpectedOkStatus() throws Exception {
 
         Movement movement = MovementMock.mock(false);
@@ -63,6 +66,7 @@ class MovementControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testFindMovementByIdExpectedNotFoundStatus() throws Exception {
         UUID uuid = UUID.fromString(id);
 
@@ -76,6 +80,7 @@ class MovementControllerTest {
     }
 
     @ParameterizedTest
+    @WithMockUser(roles = "USER")
     @MethodSource(value = "createMovementExpectedSuccess")
     void createInputMovementExpectedIsCreatedStatus(MovementInsertDTO movementInsertDTO) throws Exception {
 
@@ -90,6 +95,7 @@ class MovementControllerTest {
     }
 
     @ParameterizedTest
+    @WithMockUser(roles = "USER")
     @MethodSource(value = "createMovementExpectedSuccess")
     void createOutputMovementExpectedIsCreatedStatus(MovementInsertDTO movementInsertDTO) throws Exception {
 
@@ -112,6 +118,7 @@ class MovementControllerTest {
     }
 
     @ParameterizedTest
+    @WithMockUser(roles = "USER")
     @MethodSource(value = "createMovementExpectedBadRequest")
     void createOutputMovementExpectedBadRequestStatus(MovementInsertDTO movementInsertDTO) throws Exception {
 
@@ -134,6 +141,7 @@ class MovementControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testDeleteByIdExpectedNoContentStatus() throws Exception {
 
         UUID uuid = UUID.fromString(id);
@@ -146,6 +154,7 @@ class MovementControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testDeleteByIdExpectedNotFoundStatus() throws Exception {
 
         UUID uuid = UUID.fromString(id);
@@ -158,6 +167,7 @@ class MovementControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testDeleteByIdExpectedBadRequestStatus() throws Exception {
 
         String id = "3fa85f64-6afa6";
@@ -170,6 +180,7 @@ class MovementControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testFindByPeriodExpectedIsOkStatus() throws Exception {
         String start = "2021-10-06T20:43:03Z";
         String end = "2021-10-05T20:43:03Z";
@@ -198,6 +209,7 @@ class MovementControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testFindByPeriodExpectedNotFoundStatus() throws Exception {
         String start = "2021-10-06T20:43:03Z";
         String end = "2021-10-05T20:43:03Z";
@@ -215,6 +227,7 @@ class MovementControllerTest {
     }
 
     @ParameterizedTest
+    @WithMockUser(roles = "USER")
     @MethodSource(value = "badRequestGetSource")
     void testFindByPeriodExpectedBadRequestStatus(String start, String end, String id) throws Exception {
 

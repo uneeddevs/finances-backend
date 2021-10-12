@@ -10,6 +10,7 @@ import com.uneeddevs.finances.mocks.BankAccountUpdateDTOMock;
 import com.uneeddevs.finances.mocks.UserMock;
 import com.uneeddevs.finances.model.BankAccount;
 import com.uneeddevs.finances.model.User;
+import com.uneeddevs.finances.security.SecurityMock;
 import com.uneeddevs.finances.service.BankAccountService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.NoResultException;
@@ -35,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BankAccountController.class)
-class BankAccountControllerTest {
+class BankAccountControllerTest extends SecurityMock {
 
     private final String BASE_PATH = "/bank-accounts";
 
@@ -49,6 +51,7 @@ class BankAccountControllerTest {
     private BankAccountService bankAccountService;
 
     @Test
+    @WithMockUser(roles = "USER")
     void testInsertNewBankAccountExpectedSuccess() throws Exception{
 
         BankAccount bankAccountMock = BankAccountMock.mock();
@@ -67,6 +70,7 @@ class BankAccountControllerTest {
     }
 
     @ParameterizedTest
+    @WithMockUser(roles = "USER")
     @MethodSource(value = "badRequestCreateBankAccountProvider")
     void testInsertNewBankAccountExpectedBadRequest(String name, UUID userId, BigDecimal initialBalance) throws Exception {
         BankAccountInsertDTO bankAccountInsertDTOMock = BankAccountInsertDTOMock.mock(name, userId, initialBalance);
@@ -90,6 +94,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testInsertNewBankAccountWithNonexistentUserExpectedNotFound() throws Exception{
 
         BankAccountInsertDTO bankAccountInsertDTOMock = BankAccountInsertDTOMock.mock();
@@ -104,6 +109,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testInsertNewBankAccountExpectedInternalServerError() throws Exception{
 
         BankAccountInsertDTO bankAccountInsertDTOMock = BankAccountInsertDTOMock.mock();
@@ -118,6 +124,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testTestFindByIdExpectedSuccess() throws Exception {
         BankAccount bankAccountMock = BankAccountMock.mock();
         String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
@@ -132,6 +139,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testTestFindByIdExpectedNotFound() throws Exception {
         String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
         UUID uuid = UUID.fromString(id);
@@ -144,6 +152,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testTestFindByIdWithInvalidUUIDExpectedBadRequest() throws Exception {
         String id = "3fa85f64-5717-3f66afa6";
         mockMvc.perform(get(BASE_PATH + "/{uuid}", id))
@@ -152,6 +161,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testUpdateBankAccountExpectedSuccess() throws Exception {
         BankAccountUpdateDTO bankAccountUpdateDTO = BankAccountUpdateDTOMock.mock();
         BankAccount bankAccountMock = BankAccountMock.mock();
@@ -169,6 +179,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testUpdateBankAccountInvalidUUIDExpectedBadRequest() throws Exception {
         BankAccountUpdateDTO bankAccountUpdateDTO = BankAccountUpdateDTOMock.mock();
         String id = "3fa85f64-5717-45f66afa6";
@@ -181,6 +192,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testUpdateBankAccountExpectedBadRequest() throws Exception {
         BankAccountUpdateDTO bankAccountUpdateDTO = BankAccountUpdateDTOMock.mock(null);
         BankAccount bankAccountMock = BankAccountMock.mock();
@@ -197,6 +209,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testUpdateBankAccountExpectedNotFound() throws Exception {
         BankAccountUpdateDTO bankAccountUpdateDTO = BankAccountUpdateDTOMock.mock();
         String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
@@ -212,6 +225,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testDeleteByIdExpectedSuccess() throws Exception {
         String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
         mockMvc.perform(delete(BASE_PATH + "/{uuid}", id))
@@ -219,6 +233,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testDeleteByIdExpectedNotFound() throws Exception {
         String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
         when(bankAccountService.deleteById(UUID.fromString(id))).thenThrow(new NoResultException("Not found"));
@@ -227,6 +242,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testDeleteByIdExpectedInternalServerError() throws Exception {
         String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
         when(bankAccountService.deleteById(UUID.fromString(id))).thenThrow(new RuntimeException("Error"));
@@ -236,6 +252,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testTestFindByUserExpectedSuccess() throws Exception {
         BankAccount bankAccountMock = BankAccountMock.mock();
         List<BankAccount> bankAccountList = Collections.singletonList(bankAccountMock);
@@ -252,6 +269,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testTestFindByUserExpectedNotFound() throws Exception {
         String id = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
         User user = UserMock.mock(false);
@@ -264,6 +282,7 @@ class BankAccountControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     void testTestFindByUserExpectedBadRequest() throws Exception {
         String id = "3fa85f64c-2c963f66afa6";
         User user = UserMock.mock(false);
