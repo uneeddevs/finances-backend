@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
@@ -56,6 +57,30 @@ class UserServiceTest {
 
         NoResultException noResultException = assertThrows(NoResultException.class,
                 () -> userService.findByEmail(email),
+                "Expected NoResultException");
+        assertEquals(noResultException.getMessage(), "No user with email " + email);
+        verify(userRepository).findByEmail(email);
+    }
+
+    @Test
+    void testFindByUsernameExpectedSuccess() {
+        User user = new User("name", "email@mail.com", "password");
+        String email = "user@mail.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        var userEmailReturn = userService.loadUserByUsername(email);
+        assertNotNull(userEmailReturn, "User return cannot be null");
+
+        verify(userRepository).findByEmail(email);
+    }
+
+    @Test
+    void testFindByUsernameExpectedUsernameNotFoundException() {
+        String email = "user@mail.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        UsernameNotFoundException noResultException = assertThrows(UsernameNotFoundException.class,
+                () -> userService.loadUserByUsername(email),
                 "Expected NoResultException");
         assertEquals(noResultException.getMessage(), "No user with email " + email);
         verify(userRepository).findByEmail(email);

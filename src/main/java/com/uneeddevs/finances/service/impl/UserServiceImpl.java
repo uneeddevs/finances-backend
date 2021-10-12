@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
@@ -83,5 +85,14 @@ public class UserServiceImpl implements UserService {
     void updateOldUserObject(User oldUser, User newUser) {
         oldUser.setName(newUser.getName());
         oldUser.setPassword(newUser.getPassword());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        try {
+            return findByEmail(username);
+        } catch (NoResultException e) {
+            throw new UsernameNotFoundException(e.getMessage());
+        }
     }
 }

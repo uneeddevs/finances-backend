@@ -10,10 +10,14 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.uneeddevs.finances.util.CheckUtils.requireNonNull;
 import static com.uneeddevs.finances.util.CheckUtils.requireNotBlank;
@@ -24,7 +28,7 @@ import static java.util.Objects.isNull;
 @ToString
 @Table(name = "TB_USER")
 @NoArgsConstructor(onConstructor = @__(@Deprecated))
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,16 +39,15 @@ public class User {
     private String name;
     @Column(nullable = false, length = 100, unique = true)
     private String email;
-    @Lob
     @Setter
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     @ToString.Exclude
     private String password;
     @CreationTimestamp
     private LocalDateTime registerDate;
     @UpdateTimestamp
     private LocalDateTime updateDate;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "USER_ID", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "PROFILE_ID", nullable = false)
     )
@@ -106,6 +109,38 @@ public class User {
 
     @Override
     public int hashCode() {
-        return 0;
+        return Objects.hash(id);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return profiles.stream()
+                .map(profile -> new SimpleGrantedAuthority(profile.getRoleName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return getEmail();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
