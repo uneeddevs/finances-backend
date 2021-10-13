@@ -1,11 +1,15 @@
 package com.uneeddevs.finances.service.impl;
 
+import com.uneeddevs.finances.constants.Messages;
 import com.uneeddevs.finances.enums.MovementType;
+import com.uneeddevs.finances.enums.ProfileRole;
 import com.uneeddevs.finances.model.BankAccount;
 import com.uneeddevs.finances.model.Movement;
 import com.uneeddevs.finances.repository.MovementRepository;
+import com.uneeddevs.finances.security.exception.AuthenticationFailException;
 import com.uneeddevs.finances.service.BankAccountService;
 import com.uneeddevs.finances.service.MovementService;
+import com.uneeddevs.finances.util.UserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,11 +49,19 @@ public class MovementServiceImpl implements MovementService {
     @Override
     public Movement findById(UUID id) {
         log.info("Searching movement by id {}", id);
-        return movementRepository.findById(id).orElseThrow(() -> {
+        final Movement movement = movementRepository.findById(id).orElseThrow(() -> {
             final String message = String.format("No movement with id %s", id);
             log.warn(message);
-            return new NoResultException(message);
+            if (UserUtil.hasAuthority(ProfileRole.ADMIN))
+                return new NoResultException(message);
+            throw new AuthenticationFailException(Messages.FORBIDDEN_TEXT);
         });
+        final BankAccount bankAccount = movement.getBankAccount();
+        final UUID userId = bankAccount.getUserId();
+        if(!UserUtil.hasAuthority(ProfileRole.ADMIN) &&
+                !userId.equals(UserUtil.authenticatedUUID()))
+            throw new AuthenticationFailException(Messages.FORBIDDEN_TEXT);
+        return movement;
     }
 
     @Override
@@ -74,6 +86,10 @@ public class MovementServiceImpl implements MovementService {
     public List<Movement> findByPeriodAndBankAccount(LocalDateTime start, LocalDateTime end, UUID bankAccountId) {
         log.info("Performing search movement by account {} between {} and {}", bankAccountId, start, end);
         final BankAccount bankAccount = bankAccountService.findById(bankAccountId);
+        final UUID userId = bankAccount.getUserId();
+        if(!UserUtil.hasAuthority(ProfileRole.ADMIN) &&
+                !userId.equals(UserUtil.authenticatedUUID()))
+            throw new AuthenticationFailException(Messages.FORBIDDEN_TEXT);
         List<Movement> movements = movementRepository.findByMovementDateBetweenAndBankAccount(start, end, bankAccount);
         if(!movements.isEmpty())
             return movements;
