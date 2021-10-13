@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -49,7 +50,7 @@ class JwtAuthenticationFilterTest {
 		when(res.getWriter()).thenReturn(printWriter);
 		when(printWriter.append(anyString())).thenReturn(printWriter);
 
-		jwtAuthenticationFilter.successfulAuthentication(req, res, chain, auth);
+		assertDoesNotThrow(() ->jwtAuthenticationFilter.successfulAuthentication(req, res, chain, auth));
 	}
 
 	@Test
@@ -63,7 +64,7 @@ class JwtAuthenticationFilterTest {
 
 		when(req.getInputStream()).thenReturn(servletInputStream);
 
-		jwtAuthenticationFilter.attemptAuthentication(req, res);
+		assertDoesNotThrow(() -> jwtAuthenticationFilter.attemptAuthentication(req, res));
 	}
 
 	@Test

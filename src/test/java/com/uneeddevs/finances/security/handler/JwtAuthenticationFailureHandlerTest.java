@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,7 +27,7 @@ class JwtAuthenticationFailureHandlerTest {
 
 		when(res.getWriter()).thenReturn(printWriter);
 
-		failureHandler.onAuthenticationFailure(req, res, exception);
+		assertDoesNotThrow(() -> failureHandler.onAuthenticationFailure(req, res, exception));
 
 	}
 

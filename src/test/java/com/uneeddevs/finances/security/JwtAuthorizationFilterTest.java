@@ -14,6 +14,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
 class JwtAuthorizationFilterTest {
@@ -48,7 +49,7 @@ class JwtAuthorizationFilterTest {
 			final String authorizationHeader = "Authorization";
 			when(request.getHeader(authorizationHeader)).thenReturn("Bearer " + JWT_TOKEN);
 			System.out.println(jwtUtil.isValidToken(JWT_TOKEN));
-			jwtAuthenticationFilter.doFilterInternal(request, response, chain);
+			assertDoesNotThrow(() -> jwtAuthenticationFilter.doFilterInternal(request, response, chain));
 		}
 	}
 }
