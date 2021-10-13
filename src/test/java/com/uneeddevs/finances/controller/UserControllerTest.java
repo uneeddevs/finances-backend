@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
@@ -39,7 +40,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(value = UserController.class)
 @Import({SecurityConfig.class, PasswordManagerConfig.class})
 class UserControllerTest extends SecurityMock {
 
@@ -229,8 +231,8 @@ class UserControllerTest extends SecurityMock {
         when(userService.findPage(any(Pageable.class))).thenThrow(new NoResultException("No result in page"));
 
         mockMvc.perform(get("/users/page"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNotFound());
 
-        verify(userService, never()).findPage(any(Pageable.class));
+        verify(userService).findPage(any(Pageable.class));
     }
 }
