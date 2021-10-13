@@ -26,8 +26,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final String[] PUBLIC_MATCHERS_POST = {"/users", "/login"};
-    private final String[] ADMIN_MATCHERS = {"/users/page"};
+    private static final String[] PUBLIC_MATCHERS_POST = {"/users", "/login"};
+    private static final String[] ADMIN_MATCHERS = {"/users/page"};
 
     private final ObjectMapper objectMapper;
     private final UserService userService;

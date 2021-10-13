@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.uneeddevs.finances.util.CheckUtils.requireNonNull;
 import static com.uneeddevs.finances.util.CheckUtils.requireNotBlank;
@@ -116,7 +115,7 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return profiles.stream()
                 .map(profile -> new SimpleGrantedAuthority(profile.getRoleName()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

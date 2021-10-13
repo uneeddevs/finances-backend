@@ -1,5 +1,6 @@
 package com.uneeddevs.finances.service.impl;
 
+import com.uneeddevs.finances.constants.Messages;
 import com.uneeddevs.finances.enums.ProfileRole;
 import com.uneeddevs.finances.model.Profile;
 import com.uneeddevs.finances.model.User;
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
     public User findByEmail(String username) {
         if(!UserUtil.hasAuthority(ProfileRole.ADMIN)
                 && !username.equalsIgnoreCase(UserUtil.authenticatedUsername()))
-            throw new AuthenticationFailException("Forbidden");
+            throw new AuthenticationFailException(Messages.FORBIDDEN_TEXT);
         log.info("Searching user by username: {}", username);
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> {
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
     public User findById(UUID uuid) {
         if(!UserUtil.hasAuthority(ProfileRole.ADMIN)
                 && !uuid.equals(UserUtil.authenticatedUUID()))
-            throw new AuthenticationFailException("Forbidden");
+            throw new AuthenticationFailException(Messages.FORBIDDEN_TEXT);
         return userRepository.findById(uuid)
                 .orElseThrow(() ->{
                     String message = String.format("No user with UUID %s", uuid);
@@ -87,7 +88,7 @@ public class UserServiceImpl implements UserService {
     public User update(User user) {
         if(!UserUtil.hasAuthority(ProfileRole.ADMIN)
                 && !user.getId().equals(UserUtil.authenticatedUUID()))
-            throw new AuthenticationFailException("Forbidden");
+            throw new AuthenticationFailException(Messages.FORBIDDEN_TEXT);
         User oldUser = findById(user.getId());
         updateOldUserObject(oldUser, user);
         return save(oldUser);
