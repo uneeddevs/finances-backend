@@ -21,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] PUBLIC_MATCHERS_POST = {"/users", "/login"};
+    private static final String[] PUBLIC_MATCHERS_GET = {"/swagger-ui/**", "/documentation/**", "/documentation-api"};
     private static final String[] ADMIN_MATCHERS = {"/users/page"};
 
     private final ObjectMapper objectMapper;
@@ -34,6 +35,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(ADMIN_MATCHERS).hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST)
+                .permitAll()
+                .antMatchers(HttpMethod.GET, PUBLIC_MATCHERS_GET)
                 .permitAll()
                 .anyRequest().authenticated();
 
