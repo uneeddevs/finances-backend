@@ -16,10 +16,13 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.expiration}")
-    private Long expiration;
-    @Value("${jwt.secret}")
-    private String secret;
+    private  final Long expiration;
+    private final String secret;
+
+    public JwtUtil(@Value("${jwt.secret}") Long expiration, @Value("${jwt.expiration}") String secret) {
+        this.expiration = expiration;
+        this.secret = secret;
+    }
 
     public String generateToken(User user){
         Algorithm algorithm = Algorithm.HMAC512(secret);

@@ -5,11 +5,10 @@ import com.uneeddevs.finances.dto.CredentialsDTO;
 import com.uneeddevs.finances.dto.TokenDTO;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.security.exception.AuthenticationFailException;
+import com.uneeddevs.finances.security.exception.handler.JwtAuthenticationFailureHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -17,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -62,20 +60,4 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         res.setContentType("application/json");
     }
 
-    private static class JwtAuthenticationFailureHandler implements AuthenticationFailureHandler {
-
-        @Override
-        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-                                            AuthenticationException exception) throws IOException, ServletException {
-            response.setStatus(401);
-            response.setContentType("application/json");
-            response.getWriter().append(json());
-        }
-
-        private String json() {
-            LocalDateTime date = LocalDateTime.now();
-            return "{\"time\": " + date + ", " + "\"status\": 401, " + "\"error\": \"Unauthorized\", "
-                    + "\"message\": \"Invalid username or password\", " + "\"path\": \"/login\"}";
-        }
-    }
 }
