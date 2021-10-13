@@ -19,7 +19,7 @@ public class JwtUtil {
     private  final Long expiration;
     private final String secret;
 
-    public JwtUtil(@Value("${jwt.secret}") Long expiration, @Value("${jwt.expiration}") String secret) {
+    public JwtUtil(@Value("${jwt.expiration}") Long expiration, @Value("${jwt.secret}") String secret) {
         this.expiration = expiration;
         this.secret = secret;
     }
