@@ -11,7 +11,7 @@ This project is a finance management application
 
 ## Build project
 
-To build this project is necessary maven 3.6.0 or greater and Java 11, use command: ```mvn clean install```
+To build this project is necessary maven 3.6.0 or greater and Java 17, use command: ```mvn clean install```
 <br>
 To  check project coverage is necessary Docker and docker-compose and use command ```docker-compose -f docker-compose-sonar.yaml up -d```
 enter in web browser and go to address localhost:9000 use ```admin``` for user and password, 
@@ -37,3 +37,8 @@ In first start of application is created the tables and is inserted user profile
 # DOCUMENTATION
 
 To se the documentation (swagger ui) start the application go to web browser and go to address ```http://localhost:8080/documentation```
+
+# Public endpoint
+
+- [POST] /users 
+- [POST] /login
