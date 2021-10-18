@@ -1,18 +1,23 @@
 package com.uneeddevs.finances.services;
 
+import com.uneeddevs.finances.enums.ProfileRole;
 import com.uneeddevs.finances.mocks.ProfileMock;
 import com.uneeddevs.finances.mocks.UserMock;
 import com.uneeddevs.finances.model.User;
 import com.uneeddevs.finances.repository.UserRepository;
+import com.uneeddevs.finances.security.exception.AuthenticationFailException;
 import com.uneeddevs.finances.service.ProfileService;
 import com.uneeddevs.finances.service.UserService;
 import com.uneeddevs.finances.service.impl.UserServiceImpl;
+import com.uneeddevs.finances.util.UserUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
@@ -39,50 +44,118 @@ class UserServiceTest {
 
     @Test
     void testFindByEmailExpectedSuccess() {
-        User user = new User("name", "email@mail.com", "password");
-        String email = "user@mail.com";
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
+            mockedUserUtil.when(UserUtil::authenticatedUsername).thenReturn("user@mail.com");
+            System.out.println(UserUtil.authenticatedUsername());
+            User user = new User("name", "user@mail.com", "password");
+            String email = "user@mail.com";
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        var userEmailReturn = userService.findByEmail(email);
-        assertNotNull(userEmailReturn, "User return cannot be null");
+            var userEmailReturn = userService.findByEmail(email);
+            assertNotNull(userEmailReturn, "User return cannot be null");
 
-        verify(userRepository).findByEmail(email);
+            verify(userRepository).findByEmail(email);
+        }
     }
 
     @Test
     void testFindByEmailExpectedNoResultException() {
-        String email = "user@mail.com";
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
+            mockedUserUtil.when(() -> UserUtil.hasAuthority(any(ProfileRole.class))).thenReturn(true);
+            String email = "user@mail.com";
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        NoResultException noResultException = assertThrows(NoResultException.class,
-                () -> userService.findByEmail(email),
-                "Expected NoResultException");
-        assertEquals(noResultException.getMessage(), "No user with email " + email);
-        verify(userRepository).findByEmail(email);
+            NoResultException noResultException = assertThrows(NoResultException.class,
+                    () -> userService.findByEmail(email),
+                    "Expected NoResultException");
+            assertEquals(noResultException.getMessage(), "No user with email " + email);
+            verify(userRepository).findByEmail(email);
+        }
+    }
+
+    @Test
+    void testFindByEmailExpectedAuthenticationFailExecptionException() {
+        try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
+            mockedUserUtil.when(() -> UserUtil.hasAuthority(any(ProfileRole.class))).thenReturn(false);
+            String email = "user@mail.com";
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+           assertThrows(AuthenticationFailException.class,
+                    () -> userService.findByEmail(email),
+                    "Expected AuthenticationFailException");
+            verify(userRepository, never()).findByEmail(email);
+        }
+    }
+
+    @Test
+    void testFindByUsernameExpectedSuccess() {
+        try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
+            mockedUserUtil.when(UserUtil::authenticatedUsername).thenReturn("user@mail.com");
+            User user = new User("name", "user@mail.com", "password");
+            String email = "user@mail.com";
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+            var userEmailReturn = userService.loadUserByUsername(email);
+            assertNotNull(userEmailReturn, "User return cannot be null");
+
+            verify(userRepository).findByEmail(email);
+        }
+    }
+
+    @Test
+    void testFindByUsernameExpectedUsernameNotFoundException() {
+        try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
+            String email = "user@mail.com";
+            mockedUserUtil.when(UserUtil::authenticatedUsername).thenReturn(email);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+            UsernameNotFoundException noResultException = assertThrows(UsernameNotFoundException.class,
+                    () -> userService.loadUserByUsername(email),
+                    "Expected NoResultException");
+            assertEquals(noResultException.getMessage(), "No user with email " + email);
+            verify(userRepository).findByEmail(email);
+        }
     }
 
     @Test
     void testFindByIdExpectedSuccess() {
-        User user = new User("name", "email@mail.com", "password");
-        UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
-        when(userRepository.findById(uuid)).thenReturn(Optional.of(user));
+        try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
+            mockedUserUtil.when(() -> UserUtil.hasAuthority(any(ProfileRole.class))).thenReturn(true);
+            User user = new User("name", "email@mail.com", "password");
+            UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+            when(userRepository.findById(uuid)).thenReturn(Optional.of(user));
 
-        var userEmailReturn = userService.findById(uuid);
-        assertNotNull(userEmailReturn, "User return cannot be null");
+            var userEmailReturn = userService.findById(uuid);
+            assertNotNull(userEmailReturn, "User return cannot be null");
 
-        verify(userRepository).findById(uuid);
+            verify(userRepository).findById(uuid);
+        }
     }
 
     @Test
     void testFindByIdExpectedNoResultException() {
-        UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
-        when(userRepository.findById(uuid)).thenReturn(Optional.empty());
+        try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
+            UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+            mockedUserUtil.when(UserUtil::authenticatedUUID).thenReturn(uuid);
+            when(userRepository.findById(uuid)).thenReturn(Optional.empty());
 
-        NoResultException noResultException = assertThrows(NoResultException.class,
-                () -> userService.findById(uuid),
-                "Expected NoResultException");
-        assertEquals(noResultException.getMessage(), "No user with UUID " + uuid);
-        verify(userRepository).findById(uuid);
+            NoResultException noResultException = assertThrows(NoResultException.class,
+                    () -> userService.findById(uuid),
+                    "Expected NoResultException");
+            assertEquals(noResultException.getMessage(), "No user with UUID " + uuid);
+            verify(userRepository).findById(uuid);
+        }
+    }
+
+    @Test
+    void testFindByIdExpectedAuthenticationFailException() {
+            UUID uuid = UUID.fromString("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+            when(userRepository.findById(uuid)).thenReturn(Optional.empty());
+
+            assertThrows(AuthenticationFailException.class,
+                    () -> userService.findById(uuid),
+                    "Expected NoResultException");
+            verify(userRepository, never()).findById(uuid);
     }
 
     @Test
@@ -103,7 +176,6 @@ class UserServiceTest {
         PersistenceException persistenceException = assertThrows(PersistenceException.class,
                 () -> userService.insert(user),
                 "Expected PersistenceException");
-        //
         assertEquals(persistenceException.getMessage(), "Error on persisting user " + user.toString());
         verify(userRepository).save(user);
         verify(profileService).findById(anyLong());
@@ -137,16 +209,33 @@ class UserServiceTest {
 
     @Test
     void testUpdateUserExpectedSuccess() {
-        User user = new User("name", "email@mail.com", "password");
-        User userUpdated = new User("name", "email@mail.com", "secret123");
+        try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
+            mockedUserUtil.when(() -> UserUtil.hasAuthority(any(ProfileRole.class))).thenReturn(true);
+            User user = new User("name", "email@mail.com", "password");
+            User userUpdated = new User("name", "email@mail.com", "secret123");
+
+            when(userRepository.findById(any())).thenReturn(Optional.of(user));
+            when(userRepository.save(user)).thenReturn(user);
+
+            userService.update(userUpdated);
+
+            verify(userRepository).findById(any());
+            verify(userRepository).save(user);
+        }
+    }
+
+    @Test
+    void testUpdateUserExpectedAuthenticationFailException() throws Exception {
+        User user = UserMock.mock(false);
+        User userUpdated = UserMock.mock(true, true);
 
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
-        userService.update(userUpdated);
+        assertThrows(AuthenticationFailException.class, () -> userService.update(userUpdated));
 
-        verify(userRepository).findById(any());
-        verify(userRepository).save(user);
+        verify(userRepository, never()).findById(any());
+        verify(userRepository, never()).save(user);
     }
 
     @Test

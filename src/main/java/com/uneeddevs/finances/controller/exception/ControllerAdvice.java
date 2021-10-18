@@ -1,5 +1,6 @@
 package com.uneeddevs.finances.controller.exception;
 
+import com.uneeddevs.finances.security.exception.AuthenticationFailException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class ControllerAdvice {
     private static final String NOT_ALLOWED_TEXT = "Method not allowed";
     private static final String INTERNAL_SERVER_ERROR_TEXT = "Unexpected error";
     private static final String NOT_FOUND_TEXT = "Not found";
+    private static final String FORBIDDEN_TEXT = "Forbidden";
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -110,6 +112,18 @@ public class ControllerAdvice {
         HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         return ResponseEntity.status(httpStatus).body(StandardError.builder()
                 .error(NOT_ALLOWED_TEXT)
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .time(LocalDateTime.now())
+                .status(httpStatus.value())
+                .build());
+    }
+
+    @ExceptionHandler(value = AuthenticationFailException.class)
+    public ResponseEntity<StandardError> forbidden(AuthenticationFailException ex, HttpServletRequest request) {
+        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
+        return ResponseEntity.status(httpStatus).body(StandardError.builder()
+                .error(FORBIDDEN_TEXT)
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .time(LocalDateTime.now())

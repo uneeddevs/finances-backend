@@ -61,4 +61,7 @@ create table if not exists tb_movement_type (id bigint primary key, movement_typ
 
 insert into tb_movement_type(id, movement_type) values (1, 'INPUT') on conflict do nothing;
 insert into tb_movement_type(id, movement_type) values (2, 'OUTPUT') on conflict do nothing;
+insert into tb_user(id, email, "name", "password", register_date, update_date) values ('917b0023-157f-4eff-be1d-61ddb067eddc', 'admin@uneeddevs.com', 'U Need devs', '$2a$12$1HsFgSCDpUfx7bypUySgAuE6De/zKxaQ9RKbaZxlds1/kocmGGNjG', current_date , current_date ) on conflict do nothing;
 
+insert into tb_user_profiles(user_id, profile_id) values ('917b0023-157f-4eff-be1d-61ddb067eddc', 1) on conflict do nothing;
+insert into tb_user_profiles(user_id, profile_id) values ('917b0023-157f-4eff-be1d-61ddb067eddc', 2) on conflict do nothing;

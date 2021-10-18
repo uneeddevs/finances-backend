@@ -5,6 +5,7 @@ import com.uneeddevs.finances.service.validation.UserInsert;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -33,6 +34,6 @@ public class UserInsertDTO {
     }
 
     public User toModel() {
-        return new User(name, email, password);
+        return new User(name, email, new BCryptPasswordEncoder().encode(password));
     }
 }

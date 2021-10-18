@@ -82,4 +82,21 @@ class UserTest {
         assertTrue(user.getBankAccounts().isEmpty());
     }
 
+    @ParameterizedTest
+    @MethodSource(value = "accountSecurityMethodSource")
+    void testSecurityAccountAllTrueStatus(boolean status) {
+        assertTrue(status, "Account status have to be true");
+    }
+
+    private static Stream<Arguments> accountSecurityMethodSource() throws Exception {
+        User user = UserMock.mock(false);
+        return Stream.of(
+                Arguments.of(user.isAccountNonExpired()),
+                Arguments.of(user.isAccountNonLocked()),
+                Arguments.of(user.isEnabled()),
+                Arguments.of(user.isCredentialsNonExpired())
+        );
+    }
+
+
 }

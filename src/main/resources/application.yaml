@@ -2,6 +2,7 @@ server:
   compression:
     enabled: true
 
+
 spring:
   sql:
     init:
@@ -28,3 +29,7 @@ springdoc:
     display-request-duration: true
     display-query-params: true
   remove-broken-reference-definitions: true
+
+jwt:
+  expiration: ${JWT_EXPIRATION:100000000}
+  secret: ${JWT_SECRET:MY-JWT-SECRET}
