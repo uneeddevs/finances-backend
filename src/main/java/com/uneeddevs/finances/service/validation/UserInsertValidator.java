@@ -19,10 +19,11 @@ public class UserInsertValidator implements ConstraintValidator<UserInsert, User
 
     @Override
     public boolean isValid(UserInsertDTO userInsertDTO, ConstraintValidatorContext context) {
+        log.info("Starting validation for new user {}", userInsertDTO);
         List<FieldMessage> list = new ArrayList<>();
 
         try {
-            userService.findByEmail(userInsertDTO.getEmail());
+            userService.loadUserByUsername(userInsertDTO.getEmail());
             list.add(new FieldMessage("email", "Email already registered"));
         } catch (Exception e){
             //ignore exception because email is not registered

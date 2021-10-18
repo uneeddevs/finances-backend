@@ -66,6 +66,7 @@ public class UserServiceImpl implements UserService {
         if(!UserUtil.hasAuthority(ProfileRole.ADMIN)
                 && !uuid.equals(UserUtil.authenticatedUUID()))
             throw new AuthenticationFailException(Messages.FORBIDDEN_TEXT);
+        log.info("Searching user by id {}", uuid);
         return userRepository.findById(uuid)
                 .orElseThrow(() ->{
                     String message = String.format("No user with UUID %s", uuid);
