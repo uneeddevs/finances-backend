@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.uneeddevs</groupId>
 	<artifactId>finances</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>finances</name>
 	<description>Finance management</description>
 	<properties>
