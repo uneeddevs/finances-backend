@@ -30,7 +30,7 @@ public class JwtUtil {
                 .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
                 .withIssuer("com.uneeddevs")
-                .withClaim("id", user.getEmail())
+                .withClaim("id", String.valueOf(user.getId()))
                 .withClaim("roles", "[" + user.getProfiles()
                         .stream()
                         .map(Profile::getRoleName)
