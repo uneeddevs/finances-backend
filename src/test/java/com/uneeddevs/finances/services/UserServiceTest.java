@@ -104,17 +104,6 @@ class UserServiceTest {
     }
 
     @Test
-    void testFindByUsernameExpectedAuthenticationFailException() {
-            String email = "user@mail.com";
-            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-            assertThrows(AuthenticationFailException.class,
-                    () -> userService.loadUserByUsername(email),
-                    "Expected NoResultException");
-            verify(userRepository, never()).findByEmail(email);
-    }
-
-    @Test
     void testFindByIdExpectedSuccess() {
         try(MockedStatic<UserUtil> mockedUserUtil = mockStatic(UserUtil.class)) {
             mockedUserUtil.when(() -> UserUtil.hasAuthority(any(ProfileRole.class))).thenReturn(true);

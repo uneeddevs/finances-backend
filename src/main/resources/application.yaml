@@ -2,6 +2,7 @@ server:
   compression:
     enabled: true
 
+
 spring:
   sql:
     init:
