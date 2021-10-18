@@ -91,7 +91,7 @@ class UserControllerTest extends SecurityMock {
             String email = "email@mail.com";
             UserInsertDTO userInsert = new UserInsertDTO("name", email, "password");
 
-            when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
+            when(userService.loadUserByUsername(email)).thenThrow(new NoResultException("No user with email " + email));
 
             mockMvc.perform(post("/users", "3fa85f64-5717-4562-b3fc-2c963f66afa6")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -127,7 +127,7 @@ class UserControllerTest extends SecurityMock {
         try(MockedStatic<LocalDateTime> mockedLocalDateTime = Mockito.mockStatic(LocalDateTime.class)) {
             mockedLocalDateTime.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
             UserInsertDTO userInsert = new UserInsertDTO(name, email, password);
-            when(userService.findByEmail(email)).thenThrow(new NoResultException("No user with email " + email));
+            when(userService.loadUserByUsername(email)).thenThrow(new NoResultException("No user with email " + email));
             ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
                     "Bad request",
                     "Validation error",
@@ -170,20 +170,23 @@ class UserControllerTest extends SecurityMock {
     @WithMockUser(roles = "USER")
     @MethodSource(value = "badRequestUpdateMethodSource")
     void testUpdateUserBlankFieldsExpectedBadRequest(String name, String password, String fieldName) throws Exception {
-        String uuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
-        UserUpdateDTO userUpdate = new UserUpdateDTO(name, password);
-        ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
-                "Bad request",
-                "Validation error",
-                "/users/" + uuid);
-        StringBuilder sb = new StringBuilder(fieldName);
-        sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-        validationError.addError(fieldName,  sb + " is mandatory");
-        mockMvc.perform(put("/users/{uuid}", uuid)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userUpdate)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(objectMapper.writeValueAsString(validationError)));
+        try(MockedStatic<LocalDateTime> mockedStatic = Mockito.mockStatic(LocalDateTime.class)) {
+            mockedStatic.when(LocalDateTime::now).thenReturn(defaultLocalDateTime);
+            String uuid = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+            UserUpdateDTO userUpdate = new UserUpdateDTO(name, password);
+            ValidationError validationError = new ValidationError(LocalDateTime.now(), 400,
+                    "Bad request",
+                    "Validation error",
+                    "/users/" + uuid);
+            StringBuilder sb = new StringBuilder(fieldName);
+            sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+            validationError.addError(fieldName, sb + " is mandatory");
+            mockMvc.perform(put("/users/{uuid}", uuid)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(userUpdate)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().json(objectMapper.writeValueAsString(validationError)));
+        }
     }
 
     private static Stream<Arguments> badRequestUpdateMethodSource() {
