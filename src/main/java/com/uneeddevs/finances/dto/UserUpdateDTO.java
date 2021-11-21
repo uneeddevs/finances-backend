@@ -4,6 +4,7 @@ import com.uneeddevs.finances.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.validation.constraints.NotBlank;
 import java.util.UUID;
@@ -26,6 +27,6 @@ public class UserUpdateDTO {
     }
 
     public User toModel(UUID uuid) {
-        return new User(uuid, name, password);
+        return new User(uuid, name, new BCryptPasswordEncoder().encode(password));
     }
 }
